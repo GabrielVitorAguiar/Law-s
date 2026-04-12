@@ -1,0 +1,62 @@
+query AllTasksForUser @auth(level: USER, insecureReason: "This operation is safe to expose to all logged in users.") {
+  tasks(where: { userId: { eq_expr: "auth.uid" } }) {
+    id
+    title
+    description
+    status
+    createdAt
+    deferUntilDate
+    user {
+      displayName
+      email
+    }
+    tags_via_TaskTag {
+      id
+      name
+    }
+  }
+}
+
+mutation CreateTask($title: String!, $description: String, $status: String!, $deferUntilDate: Date) @auth(level: USER, insecureReason: "This operation is safe to expose to all logged in users.") {
+  task_insert(
+    data: {
+      userId_expr: "auth.uid"
+      title: $title
+      description: $description
+      status: $status
+      deferUntilDate: $deferUntilDate
+      createdAt_expr: "request.time"
+    }
+  ) {
+    id
+  }
+}
+
+mutation UpdateTaskStatus($taskId: UUID!, $status: String!) @auth(level: USER, insecureReason: "This operation is safe to expose to all logged in users.") {
+  task_update(
+    key: { id: $taskId }
+    data: { status: $status }
+    where: { userId: { eq_expr: "auth.uid" } }
+  ) {
+    id
+  }
+}
+
+query GetTaskDetails($taskId: UUID!) @auth(level: USER, insecureReason: "This operation is safe to expose to all logged in users.") {
+  task(id: $taskId, where: { userId: { eq_expr: "auth.uid" } }) {
+    id
+    title
+    description
+    status
+    createdAt
+    deferUntilDate
+    user {
+      displayName
+      email
+    }
+    tags_via_TaskTag {
+      id
+      name
+    }
+  }
+}

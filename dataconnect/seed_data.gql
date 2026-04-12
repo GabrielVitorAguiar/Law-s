@@ -1,0 +1,61 @@
+mutation SeedData @transaction @auth(level: USER, insecureReason: "This is seed data for testing purposes and does not expose sensitive information.") {
+  user_insertMany(data: [
+    {
+      id: "b4d7f0c1-2a6d-4e9f-8b1a-2e3c5d7f0a1b",
+      displayName: "Alice Smith",
+      email: "alice@example.com",
+      createdAt: "2023-10-27T10:00:00Z"
+    },
+    {
+      id: "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+      displayName: "Bob Johnson",
+      email: "bob@example.com",
+      createdAt: "2023-10-27T10:05:00Z"
+    }
+  ])
+  task_insertMany(data: [
+    {
+      id: "c7f0d1b2-a6d2-f9e4-b1a8-e3c5d7f0a1b2",
+      userId: "b4d7f0c1-2a6d-4e9f-8b1a-2e3c5d7f0a1b",
+      title: "Grocery Shopping",
+      description: "Buy milk, eggs, bread, and vegetables.",
+      status: "pending",
+      createdAt: "2023-10-27T10:10:00Z"
+    },
+    {
+      id: "d8e1f2c3-b7a6-e9f0-c2b3-f4d5a6b7c8d9",
+      userId: "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+      title: "Finish Report",
+      description: "Complete the quarterly sales report for Q3.",
+      status: "in-progress",
+      createdAt: "2023-10-27T10:15:00Z",
+      deferUntilDate: "2023-10-30"
+    }
+  ])
+  tag_insertMany(data: [
+    {
+      id: "e9f0d1b2-a6d2-f9e4-b1a8-e3c5d7f0a1b2",
+      userId: "b4d7f0c1-2a6d-4e9f-8b1a-2e3c5d7f0a1b",
+      name: "Personal",
+      createdAt: "2023-10-27T10:20:00Z"
+    },
+    {
+      id: "f0c1d2e3-b4a5-c6d7-e8f9-a0b1c2d3e4f5",
+      userId: "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+      name: "Work",
+      createdAt: "2023-10-27T10:25:00Z"
+    }
+  ])
+  taskTag_insertMany(data: [
+    {
+      taskId: "c7f0d1b2-a6d2-f9e4-b1a8-e3c5d7f0a1b2",
+      tagId: "e9f0d1b2-a6d2-f9e4-b1a8-e3c5d7f0a1b2",
+      createdAt: "2023-10-27T10:30:00Z"
+    },
+    {
+      taskId: "d8e1f2c3-b7a6-e9f0-c2b3-f4d5a6b7c8d9",
+      tagId: "f0c1d2e3-b4a5-c6d7-e8f9-a0b1c2d3e4f5",
+      createdAt: "2023-10-27T10:35:00Z"
+    }
+  ])
+}

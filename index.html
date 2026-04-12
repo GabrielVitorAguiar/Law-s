@@ -7,30 +7,18 @@
 </head>
 <body>
     
-</body>
 
 <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+  import { auth } from "./js/firebase.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyDKifJgAZVxJ7BPakv170gQuZrOAMVupsE",
-    authDomain: "projeto-pi-law-s.firebaseapp.com",
-    projectId: "projeto-pi-law-s",
-    storageBucket: "projeto-pi-law-s.firebasestorage.app",
-    messagingSenderId: "1030930232167",
-    appId: "1:1030930232167:web:95d5748f649d84dea735c2",
-    measurementId: "G-V1RTMDREZ9"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = "login.html";
+    }
+  });
 </script>
+
+</body>
 
 </html>
