@@ -2,7 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/fireba
 import { getAuth } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCbu89ff1PtZUNWOcLBnFu_0Q1QFrE8ehEAIzaSyBJ7QMq03eFJDUHdhgUYhz6O3uB8u5v8vw",
+  apiKey: "AIzaSyBJ7QMq03eFJDUHdhgUYhz6O3uB8u5v8vw",
   authDomain: "projeto-pi-law-s.firebaseapp.com",
   projectId: "projeto-pi-law-s",
   storageBucket: "projeto-pi-law-s.firebasestorage.app",

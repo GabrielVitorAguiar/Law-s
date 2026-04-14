@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Law's</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     
@@ -15,8 +17,37 @@
   onAuthStateChanged(auth, (user) => {
     if (!user) {
       window.location.href = "login.html";
+    } else {
+      console.log("Usuário logado:", user);
     }
   });
+</script>
+
+
+<div class="menu">
+
+  <div class="menu-item" onclick="goTo('clientes.html')">
+    <span class="material-icons">groups</span>
+  </div>
+
+  <div class="menu-item" onclick="goTo('jurisprudencias.html')">
+    <span class="material-icons">gavel</span>
+  </div>
+
+  <div class="menu-item" onclick="goTo('agenda.html')">
+    <span class="material-icons">calendar_month</span>
+  </div>
+
+  <div class="menu-item" onclick="goTo('processos.html')">
+    <span class="material-icons">folder</span>
+  </div>
+
+</div>
+
+<script>
+  function goTo(page) {
+    window.location.href = page;
+  }
 </script>
 
 </body>
