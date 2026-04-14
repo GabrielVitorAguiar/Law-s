@@ -4,12 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Law's</title>
+
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
-  <h1>Login</h1>
+  <div class="overlay">
+    <div class="modal">
 
-  <button id="loginBtn">Entrar com Google</button>
+      <h2>Entrar</h2>
+
+      <button id="loginBtn" class="google-btn">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="google-icon">
+      Continuar com Google
+      </button>
+
+      <button id="githubBtn" class="google-btn">
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" class="google-icon">
+    Continuar com GitHub
+    </button>
+
+
+    </div>
+  </div>
 
   <script type="module" src="js/login.js"></script>
 </body>

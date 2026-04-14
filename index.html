@@ -1,24 +1,70 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Law's</title>
+    <style>
+        /* Página invisível por padrão — evita flash de conteúdo */
+        body {
+            visibility: hidden;
+        }
+
+        /* Tela de loading enquanto o Firebase verifica */
+        #auth-loading {
+            visibility: visible;
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0f0f0f;
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            gap: 10px;
+        }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #444;
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-    
 
-<script type="module">
-  import { auth } from "./js/firebase.js";
-  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+    <!-- Tela de loading — removida assim que auth confirmar -->
+    <div id="auth-loading">
+        <div class="spinner"></div>
+        Verificando acesso...
+    </div>
 
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      window.location.href = "login.html";
-    }
-  });
-</script>
+    <!-- Todo o seu conteúdo real vem aqui -->
+
+
+    <script type="module">
+        import { auth } from "./js/firebase.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                // Não logado: redireciona sem mostrar nada
+                window.location.href = "login.html";
+            } else {
+                // Logado: remove o loading e exibe a página
+                document.getElementById("auth-loading").remove();
+                document.body.style.visibility = "visible";
+            }
+        });
+    </script>
 
 </body>
-
 </html>
