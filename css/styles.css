@@ -133,3 +133,65 @@ input {
 #criarEventoBtn:hover {
   opacity: 0.8;
 }
+
+.crud-container {
+  max-width: 900px;
+  margin: auto;
+  padding: 40px;
+}
+
+#jurisForm {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+textarea {
+  min-height: 120px;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #2d2d2d;
+  color: white;
+}
+
+#jurisForm button {
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.juris-card {
+  background: #1c1c1c;
+  padding: 20px;
+  border-radius: 14px;
+  margin-top: 20px;
+}
+
+.editar-btn {
+  margin-top: 10px;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.acoes {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.editar-btn,
+.deletar-btn {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.deletar-btn {
+  background: #7a1f1f;
+  color: white;
+}
