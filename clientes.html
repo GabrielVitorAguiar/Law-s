@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Clientes</title>
+
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+
+<body>
+
+  <div class="crud-container">
+
+    <h1>Clientes</h1>
+
+    <!-- PESQUISA -->
+
+    <input
+      type="text"
+      id="pesquisa"
+      placeholder="Pesquisar cliente..."
+    >
+
+    <!-- FORMULÁRIO -->
+
+    <form id="clienteForm">
+
+      <input
+        type="text"
+        id="nome"
+        placeholder="Nome"
+        required
+      >
+
+      <input
+        type="text"
+        id="cpf"
+        placeholder="CPF"
+        required
+      >
+
+      <input
+        type="text"
+        id="rg"
+        placeholder="RG"
+        required
+      >
+
+      <input
+        type="text"
+        id="telefone"
+        placeholder="Telefone"
+        required
+      >
+
+      <button type="submit">
+        Salvar
+      </button>
+
+    </form>
+
+    <!-- LISTA -->
+
+    <div id="listaClientes"></div>
+
+  </div>
+
+  <script type="module" src="./js/clientes.js"></script>
+
+</body>
+</html>

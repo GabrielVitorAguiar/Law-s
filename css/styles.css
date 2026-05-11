@@ -195,3 +195,14 @@ textarea {
   background: #7a1f1f;
   color: white;
 }
+
+.cliente-card {
+  background: #1c1c1c;
+  padding: 20px;
+  border-radius: 14px;
+  margin-top: 20px;
+}
+
+#pesquisa {
+  margin-bottom: 20px;
+}
