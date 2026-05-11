@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Agenda</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+<h1 style="text-align:center;">Agenda</h1>
+
+<div style="text-align:center; margin-top:20px;">
+  <button id="criarEventoBtn">Criar Evento</button>
+</div>
+
+<div style="display:flex; justify-content:center; margin-top:20px;">
+  
+  <iframe
+    src="https://calendar.google.com/calendar/embed?src=primary&ctz=America/Sao_Paulo&mode=MONTH&bgcolor=%230f0f0f&color=%23ffffff"
+    style="border-radius: 16px; box-shadow: 0 0 20px rgba(0,0,0,0.5); border: none;"
+    width="900"
+    height="600">
+  </iframe>
+
+</div>
+
+<!-- EVENTOS PRÓXIMOS -->
+<h2 style="text-align:center; margin-top:40px;">Próximos compromissos</h2>
+
+<div id="eventos"></div>
+
+<script type="module" src="js/agenda.js"></script>
+
+</body>
+</html>

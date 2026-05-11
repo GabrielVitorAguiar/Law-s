@@ -120,3 +120,16 @@ input {
   font-size: 60px;
   color: white;
 }
+
+#criarEventoBtn {
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: none;
+  background: #ffffff;
+  color: black;
+  cursor: pointer;
+}
+
+#criarEventoBtn:hover {
+  opacity: 0.8;
+}
