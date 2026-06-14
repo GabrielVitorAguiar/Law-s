@@ -6,53 +6,55 @@ import {
   getDocs
 } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
-// ==========================
-// ELEMENTOS
-// ==========================
-
 const form = document.getElementById("clienteForm");
-
 const lista = document.getElementById("listaClientes");
-
 const pesquisa = document.getElementById("pesquisa");
+const novoClienteBtn = document.getElementById("novoClienteBtn");
+const cancelarCadastroBtn = document.getElementById("cancelarCadastro");
+const alfabetoNav = document.getElementById("alfabetoNav");
 
-// ==========================
-// ARRAY LOCAL
-// ==========================
+const letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 let clientes = [];
+let clientesFiltrados = [];
 
-// ==========================
-// CREATE
-// ==========================
+novoClienteBtn.addEventListener("click", () => {
+
+  form.hidden = false;
+  novoClienteBtn.hidden = true;
+  document.getElementById("nome").focus();
+
+});
+
+cancelarCadastroBtn.addEventListener("click", () => {
+
+  form.reset();
+  form.hidden = true;
+  novoClienteBtn.hidden = false;
+
+});
 
 form.addEventListener("submit", async (e) => {
 
   e.preventDefault();
 
-  const nome = document.getElementById("nome").value;
-
-  const cpf = document.getElementById("cpf").value;
-
-  const rg = document.getElementById("rg").value;
-
-  const telefone = document.getElementById("telefone").value;
+  const nome = document.getElementById("nome").value.trim();
+  const cpf = document.getElementById("cpf").value.trim();
+  const rg = document.getElementById("rg").value.trim();
+  const telefone = document.getElementById("telefone").value.trim();
 
   try {
 
-    await addDoc(collection(db, "clientes"), {
-
+    const novoCliente = await addDoc(collection(db, "clientes"), {
       nome,
       cpf,
       rg,
       telefone,
+      anotacoes: "",
       criadoEm: new Date()
-
     });
 
-    form.reset();
-
-    carregarClientes();
+    window.location.href = `perfil-cliente.html?id=${novoCliente.id}`;
 
   } catch (error) {
 
@@ -62,19 +64,12 @@ form.addEventListener("submit", async (e) => {
 
 });
 
-// ==========================
-// READ
-// ==========================
-
 async function carregarClientes() {
 
   lista.innerHTML = "";
-
   clientes = [];
 
-  const querySnapshot = await getDocs(
-    collection(db, "clientes")
-  );
+  const querySnapshot = await getDocs(collection(db, "clientes"));
 
   querySnapshot.forEach((documento) => {
 
@@ -85,62 +80,192 @@ async function carregarClientes() {
 
   });
 
-  renderizarClientes(clientes);
+  clientes.sort((a, b) => valorTexto(a.nome).localeCompare(valorTexto(b.nome), "pt-BR"));
+
+  clientesFiltrados = clientes;
+  renderizarClientes(clientesFiltrados);
+  renderizarAlfabeto();
 
 }
-
-// ==========================
-// RENDERIZAÇÃO
-// ==========================
 
 function renderizarClientes(listaClientes) {
 
   lista.innerHTML = "";
 
+  if (listaClientes.length === 0) {
+
+    lista.innerHTML = `<p class="empty-state">Nenhum cliente encontrado.</p>`;
+    atualizarLetrasDisponiveis();
+    return;
+
+  }
+
+  let letraAtual = "";
+
   listaClientes.forEach((cliente) => {
 
-    const div = document.createElement("div");
+    const letra = primeiraLetra(cliente.nome);
 
-    div.classList.add("cliente-card");
+    if (letra !== letraAtual) {
 
-    div.innerHTML = `
+      letraAtual = letra;
 
-      <h3>${cliente.nome}</h3>
+      const tituloLetra = document.createElement("h2");
+      tituloLetra.classList.add("letra-grupo");
+      tituloLetra.id = `letra-${letra}`;
+      tituloLetra.textContent = letra;
+      lista.appendChild(tituloLetra);
 
-      <p><strong>CPF:</strong> ${cliente.cpf}</p>
+    }
 
-      <p><strong>RG:</strong> ${cliente.rg}</p>
+    const button = document.createElement("button");
 
-      <p><strong>Telefone:</strong> ${cliente.telefone}</p>
+    button.type = "button";
+    button.classList.add("cliente-list-item");
+    button.dataset.letra = letra;
+
+    button.innerHTML = `
+
+      <strong>${escapeHTML(cliente.nome)}</strong>
+
+      <span>CPF: ${escapeHTML(cliente.cpf)} | Telefone: ${escapeHTML(cliente.telefone)}</span>
 
     `;
 
-    lista.appendChild(div);
+    button.addEventListener("click", () => {
+
+      window.location.href = `perfil-cliente.html?id=${cliente.id}`;
+
+    });
+
+    lista.appendChild(button);
+
+  });
+
+  atualizarLetrasDisponiveis();
+  atualizarLetraAtiva();
+
+}
+
+function renderizarAlfabeto() {
+
+  alfabetoNav.innerHTML = "";
+
+  letras.forEach((letra) => {
+
+    const button = document.createElement("button");
+
+    button.type = "button";
+    button.textContent = letra;
+    button.dataset.letra = letra;
+
+    button.addEventListener("click", () => rolarParaLetra(letra));
+
+    alfabetoNav.appendChild(button);
+
+  });
+
+  atualizarLetrasDisponiveis();
+
+}
+
+function rolarParaLetra(letra) {
+
+  const alvo = document.getElementById(`letra-${letra}`);
+
+  if (!alvo) return;
+
+  alvo.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+
+}
+
+function atualizarLetrasDisponiveis() {
+
+  const letrasDisponiveis = new Set(clientesFiltrados.map((cliente) => primeiraLetra(cliente.nome)));
+
+  alfabetoNav.querySelectorAll("button").forEach((button) => {
+
+    const disponivel = letrasDisponiveis.has(button.dataset.letra);
+
+    button.disabled = !disponivel;
+    button.classList.toggle("indisponivel", !disponivel);
 
   });
 
 }
 
-// ==========================
-// PESQUISA
-// ==========================
+function atualizarLetraAtiva() {
 
-pesquisa.addEventListener("input", () => {
+  const grupos = [...document.querySelectorAll(".letra-grupo")];
 
-  const valor = pesquisa.value.toLowerCase();
+  if (grupos.length === 0) return;
 
-  const filtrados = clientes.filter((cliente) => {
+  let letraAtiva = grupos[0].textContent;
 
-    return cliente.nome.toLowerCase().includes(valor);
+  grupos.forEach((grupo) => {
+
+    if (grupo.getBoundingClientRect().top <= 130) {
+      letraAtiva = grupo.textContent;
+    }
 
   });
 
-  renderizarClientes(filtrados);
+  alfabetoNav.querySelectorAll("button").forEach((button) => {
+
+    button.classList.toggle("ativa", button.dataset.letra === letraAtiva);
+
+  });
+
+}
+
+pesquisa.addEventListener("input", () => {
+
+  const valor = valorTexto(pesquisa.value).toLowerCase().trim();
+
+  clientesFiltrados = clientes.filter((cliente) => {
+
+    return Object.values(cliente).some((campo) => {
+
+      if (campo === null || campo === undefined) return false;
+
+      return valorTexto(campo).toLowerCase().includes(valor);
+
+    });
+
+  });
+
+  renderizarClientes(clientesFiltrados);
 
 });
 
-// ==========================
-// INICIAR
-// ==========================
+window.addEventListener("scroll", atualizarLetraAtiva);
+
+function primeiraLetra(nome = "") {
+
+  const letra = valorTexto(nome).charAt(0).toUpperCase();
+
+  return letras.includes(letra) ? letra : "#";
+
+}
+
+function valorTexto(valor = "") {
+
+  return String(valor).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+}
+
+function escapeHTML(valor = "") {
+
+  return String(valor)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+}
 
 carregarClientes();

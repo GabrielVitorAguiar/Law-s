@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Perfil do Cliente</title>
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+
+<body>
+
+  <div class="crud-container">
+
+    <div class="page-actions">
+      <a class="home-btn icon-btn" href="index.html" aria-label="Voltar para a home">
+        <span class="material-icons">home</span>
+      </a>
+
+      <a class="home-btn icon-btn" href="clientes.html" aria-label="Voltar para clientes">
+        <span class="material-icons">arrow_back</span>
+      </a>
+    </div>
+
+    <h1 id="tituloCliente">Perfil do cliente</h1>
+
+    <form id="perfilClienteForm">
+
+      <input
+        type="text"
+        id="nome"
+        placeholder="Nome"
+        required
+      >
+
+      <input
+        type="text"
+        id="cpf"
+        placeholder="CPF"
+        required
+      >
+
+      <input
+        type="text"
+        id="rg"
+        placeholder="RG"
+        required
+      >
+
+      <input
+        type="text"
+        id="telefone"
+        placeholder="Telefone"
+        required
+      >
+
+      <button type="submit">
+        Salvar alterações
+      </button>
+
+    </form>
+
+    <section class="perfil-section">
+      <h2>Anotações</h2>
+
+      <textarea
+        id="anotacoes"
+        placeholder="Digite anotações sobre este cliente..."
+      ></textarea>
+
+      <button type="button" id="salvarAnotacoes" class="primary-btn">
+        Salvar anotações
+      </button>
+    </section>
+
+    <section class="perfil-section">
+      <h2>Processos deste cliente</h2>
+
+      <div id="processosCliente"></div>
+    </section>
+
+    <button type="button" id="excluirCliente" class="deletar-btn danger-action">
+      Excluir cliente
+    </button>
+
+  </div>
+
+  <script type="module" src="./js/perfil-cliente.js"></script>
+
+</body>
+</html>

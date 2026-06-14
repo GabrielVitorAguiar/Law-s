@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Processos</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+
+<body>
+
+  <div class="crud-container">
+
+    <div class="page-actions">
+      <a class="home-btn icon-btn" href="index.html" aria-label="Voltar para a home">
+        <span class="material-icons">home</span>
+      </a>
+
+      <a class="home-btn icon-btn" id="voltarListaProcessos" href="processos.html" aria-label="Voltar para processos" hidden>
+        <span class="material-icons">arrow_back</span>
+      </a>
+    </div>
+
+    <h1>Processos</h1>
+
+    <div class="clientes-toolbar" id="processosToolbar">
+      <input
+        type="text"
+        id="pesquisa"
+        placeholder="Pesquisar por número, cliente, área, status, descrição..."
+      >
+
+      <button type="button" id="novoProcessoBtn" class="primary-btn">
+        Adicionar processo
+      </button>
+    </div>
+
+    <form id="processoForm" hidden>
+
+      <input
+        type="text"
+        id="numero"
+        placeholder="Número do processo"
+        required
+      >
+
+      <input
+        type="text"
+        id="cliente"
+        placeholder="Cliente"
+        required
+      >
+
+      <input
+        type="text"
+        id="area"
+        placeholder="Área"
+        required
+      >
+
+      <input
+        type="text"
+        id="status"
+        placeholder="Status"
+        required
+      >
+
+      <textarea
+        id="descricao"
+        placeholder="Descrição"
+        required
+      ></textarea>
+
+      <button type="submit">
+        Salvar
+      </button>
+
+      <button type="button" id="cancelarEdicao" class="secondary-btn">
+        Cancelar
+      </button>
+
+    </form>
+
+    <div id="listaProcessos"></div>
+
+  </div>
+
+  <script type="module" src="./js/processos.js"></script>
+
+</body>
+</html>

@@ -2,35 +2,70 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Agenda</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendário</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="./css/styles.css">
 </head>
 
 <body>
 
-<h1 style="text-align:center;">Agenda</h1>
+  <div class="crud-container">
 
-<div style="text-align:center; margin-top:20px;">
-  <button id="criarEventoBtn">Criar Evento</button>
-</div>
+    <a class="home-btn icon-btn" href="index.html" aria-label="Voltar para a home">
+      <span class="material-icons">home</span>
+    </a>
 
-<div style="display:flex; justify-content:center; margin-top:20px;">
-  
-  <iframe
-    src="https://calendar.google.com/calendar/embed?src=primary&ctz=America/Sao_Paulo&mode=MONTH&bgcolor=%230f0f0f&color=%23ffffff"
-    style="border-radius: 16px; box-shadow: 0 0 20px rgba(0,0,0,0.5); border: none;"
-    width="900"
-    height="600">
-  </iframe>
+    <h1>Calendário</h1>
 
-</div>
+    <input
+      type="text"
+      id="pesquisa"
+      placeholder="Pesquisar compromisso..."
+    >
 
-<!-- EVENTOS PRÓXIMOS -->
-<h2 style="text-align:center; margin-top:40px;">Próximos compromissos</h2>
+    <form id="agendaForm">
 
-<div id="eventos"></div>
+      <input
+        type="text"
+        id="titulo"
+        placeholder="Título do compromisso"
+        required
+      >
 
-<script type="module" src="js/agenda.js"></script>
+      <input
+        type="date"
+        id="data"
+        required
+      >
+
+      <input
+        type="time"
+        id="hora"
+        required
+      >
+
+      <textarea
+        id="descricao"
+        placeholder="Descrição"
+        required
+      ></textarea>
+
+      <button type="submit">
+        Salvar
+      </button>
+
+      <button type="button" id="cancelarEdicao" class="secondary-btn" hidden>
+        Cancelar edição
+      </button>
+
+    </form>
+
+    <div id="listaEventos"></div>
+
+  </div>
+
+  <script type="module" src="js/agenda.js"></script>
 
 </body>
 </html>

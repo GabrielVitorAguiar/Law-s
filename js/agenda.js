@@ -1,130 +1,220 @@
-import { auth } from "./firebase.js";
+import { db } from "./firebase.js";
+
 import {
-  onAuthStateChanged,
-  GoogleAuthProvider,
-  signInWithPopup
-} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+  collection,
+  addDoc,
+  getDocs,
+  doc,
+  updateDoc,
+  deleteDoc
+} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
-let token = null;
+const form = document.getElementById("agendaForm");
+const lista = document.getElementById("listaEventos");
+const pesquisa = document.getElementById("pesquisa");
+const cancelarEdicaoBtn = document.getElementById("cancelarEdicao");
 
-// ==========================
-// LOGIN + TOKEN
-// ==========================
+let eventos = [];
+let editandoId = null;
 
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.href = "login.html";
-    return;
-  }
+form.addEventListener("submit", async (e) => {
 
-  token = sessionStorage.getItem("googleToken");
+  e.preventDefault();
 
-  if (!token) {
-    try {
-      const provider = new GoogleAuthProvider();
-      provider.addScope("https://www.googleapis.com/auth/calendar");
+  const titulo = document.getElementById("titulo").value;
+  const data = document.getElementById("data").value;
+  const hora = document.getElementById("hora").value;
+  const descricao = document.getElementById("descricao").value;
 
-      const result = await signInWithPopup(auth, provider);
-      const credential = GoogleAuthProvider.credentialFromResult(result);
+  try {
 
-      token = credential.accessToken;
+    if (editandoId) {
 
-      sessionStorage.setItem("googleToken", token);
+      await updateDoc(doc(db, "calendario", editandoId), {
+        titulo,
+        data,
+        hora,
+        descricao
+      });
 
-    } catch (error) {
-      alert("Permissão necessária.");
-      return;
+      limparEdicao();
+
+    } else {
+
+      await addDoc(collection(db, "calendario"), {
+        titulo,
+        data,
+        hora,
+        descricao,
+        criadoEm: new Date()
+      });
+
     }
+
+    form.reset();
+    carregarEventos();
+
+  } catch (error) {
+
+    console.error(error);
+
   }
 
-  carregarEventos();
 });
 
-// ==========================
-// BUSCAR EVENTOS
-// ==========================
-
 async function carregarEventos() {
-  const response = await fetch(
-    "https://www.googleapis.com/calendar/v3/calendars/primary/events?maxResults=10&orderBy=startTime&singleEvents=true",
-    {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    }
-  );
 
-  const data = await response.json();
+  lista.innerHTML = "";
+  eventos = [];
 
-  if (!data.items) return;
+  const querySnapshot = await getDocs(collection(db, "calendario"));
 
-  renderEventos(data.items);
+  querySnapshot.forEach((documento) => {
+
+    eventos.push({
+      id: documento.id,
+      ...documento.data()
+    });
+
+  });
+
+  eventos.sort((a, b) => `${a.data} ${a.hora}`.localeCompare(`${b.data} ${b.hora}`));
+
+  renderizarEventos(eventos);
+
 }
 
-// ==========================
-// RENDER
-// ==========================
+function renderizarEventos(listaEventos) {
 
-function renderEventos(eventos) {
-  const container = document.getElementById("eventos");
-  container.innerHTML = "";
+  lista.innerHTML = "";
 
-  eventos.forEach(evento => {
-    const dataEvento = new Date(evento.start.dateTime || evento.start.date);
+  listaEventos.forEach((evento) => {
 
     const div = document.createElement("div");
 
-    div.style.background = "#1c1c1c";
-    div.style.padding = "15px";
-    div.style.margin = "10px";
-    div.style.borderRadius = "10px";
+    div.classList.add("registro-card");
 
     div.innerHTML = `
-      <strong>${evento.summary || "Sem título"}</strong><br>
-      ${dataEvento.toLocaleString()}
+
+      <h3>${escapeHTML(evento.titulo)}</h3>
+
+      <p><strong>Data:</strong> ${formatarData(evento.data)} às ${escapeHTML(evento.hora)}</p>
+
+      <p>${escapeHTML(evento.descricao)}</p>
+
+      <div class="acoes">
+
+        <button class="editar-btn" type="button">
+          Editar
+        </button>
+
+        <button class="deletar-btn" type="button">
+          Excluir
+        </button>
+
+      </div>
+
     `;
 
-    container.appendChild(div);
+    div.querySelector(".editar-btn")
+      .addEventListener("click", () => editarEvento(evento));
+
+    div.querySelector(".deletar-btn")
+      .addEventListener("click", () => excluirEvento(evento.id));
+
+    lista.appendChild(div);
+
   });
+
 }
 
-// ==========================
-// CRIAR EVENTO
-// ==========================
+function editarEvento(evento) {
 
-document.getElementById("criarEventoBtn").addEventListener("click", async () => {
+  document.getElementById("titulo").value = evento.titulo;
+  document.getElementById("data").value = evento.data;
+  document.getElementById("hora").value = evento.hora;
+  document.getElementById("descricao").value = evento.descricao;
 
-  const titulo = prompt("Título do evento:");
-  const data = prompt("Data (YYYY-MM-DD):");
-  const hora = prompt("Hora (HH:MM):");
+  editandoId = evento.id;
+  cancelarEdicaoBtn.hidden = false;
 
-  if (!titulo || !data || !hora) return;
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
 
-  const startDateTime = `${data}T${hora}:00-03:00`;
+}
 
-  const evento = {
-    summary: titulo,
-    start: {
-      dateTime: startDateTime
-    },
-    end: {
-      dateTime: startDateTime
-    }
-  };
+async function excluirEvento(id) {
 
-  await fetch(
-    "https://www.googleapis.com/calendar/v3/calendars/primary/events",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(evento)
-    }
-  );
+  const confirmar = confirm("Deseja realmente excluir este compromisso?");
 
-  alert("Evento criado!");
+  if (!confirmar) return;
 
-  carregarEventos();
+  try {
+
+    await deleteDoc(doc(db, "calendario", id));
+    carregarEventos();
+
+  } catch (error) {
+
+    console.error(error);
+
+  }
+
+}
+
+pesquisa.addEventListener("input", () => {
+
+  const valor = pesquisa.value.toLowerCase();
+
+  const filtrados = eventos.filter((evento) => {
+
+    return (
+      evento.titulo.toLowerCase().includes(valor) ||
+      evento.descricao.toLowerCase().includes(valor) ||
+      evento.data.includes(valor)
+    );
+
+  });
+
+  renderizarEventos(filtrados);
+
 });
+
+cancelarEdicaoBtn.addEventListener("click", () => {
+
+  form.reset();
+  limparEdicao();
+
+});
+
+function limparEdicao() {
+
+  editandoId = null;
+  cancelarEdicaoBtn.hidden = true;
+
+}
+
+function formatarData(data) {
+
+  if (!data) return "";
+
+  const [ano, mes, dia] = data.split("-");
+
+  return `${dia}/${mes}/${ano}`;
+
+}
+
+function escapeHTML(valor = "") {
+
+  return String(valor)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+}
+
+carregarEventos();

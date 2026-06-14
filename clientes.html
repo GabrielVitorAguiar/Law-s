@@ -7,26 +7,33 @@
 
   <title>Clientes</title>
 
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="./css/styles.css">
 </head>
 
 <body>
 
-  <div class="crud-container">
+  <div class="crud-container clientes-container">
+
+    <a class="home-btn icon-btn" href="index.html" aria-label="Voltar para a home">
+      <span class="material-icons">home</span>
+    </a>
 
     <h1>Clientes</h1>
 
-    <!-- PESQUISA -->
+    <div class="clientes-toolbar">
+      <input
+        type="text"
+        id="pesquisa"
+        placeholder="Pesquisar por nome, CPF, telefone, RG..."
+      >
 
-    <input
-      type="text"
-      id="pesquisa"
-      placeholder="Pesquisar cliente..."
-    >
+      <button type="button" id="novoClienteBtn" class="primary-btn">
+        Adicionar novo cliente
+      </button>
+    </div>
 
-    <!-- FORMULÁRIO -->
-
-    <form id="clienteForm">
+    <form id="clienteForm" class="cliente-form" hidden>
 
       <input
         type="text"
@@ -57,16 +64,20 @@
       >
 
       <button type="submit">
-        Salvar
+        Salvar cliente
+      </button>
+
+      <button type="button" id="cancelarCadastro" class="secondary-btn">
+        Cancelar
       </button>
 
     </form>
 
-    <!-- LISTA -->
-
-    <div id="listaClientes"></div>
+    <div id="listaClientes" class="clientes-lista"></div>
 
   </div>
+
+  <nav id="alfabetoNav" class="alfabeto-nav" aria-label="Navegação por letras"></nav>
 
   <script type="module" src="./js/clientes.js"></script>
 
