@@ -10,7 +10,7 @@
 
 <body>
 
-  <div class="crud-container">
+  <div class="crud-container calendario-container">
 
     <a class="home-btn icon-btn" href="index.html" aria-label="Voltar para a home">
       <span class="material-icons">home</span>
@@ -18,50 +18,75 @@
 
     <h1>Calendário</h1>
 
-    <input
-      type="text"
-      id="pesquisa"
-      placeholder="Pesquisar compromisso..."
-    >
-
-    <form id="agendaForm">
-
-      <input
-        type="text"
-        id="titulo"
-        placeholder="Título do compromisso"
-        required
-      >
-
-      <input
-        type="date"
-        id="data"
-        required
-      >
-
-      <input
-        type="time"
-        id="hora"
-        required
-      >
-
-      <textarea
-        id="descricao"
-        placeholder="Descrição"
-        required
-      ></textarea>
-
-      <button type="submit">
-        Salvar
+    <div class="calendario-header">
+      <button type="button" id="mesAnterior" class="icon-btn home-btn" aria-label="Mês anterior">
+        <span class="material-icons">chevron_left</span>
       </button>
 
-      <button type="button" id="cancelarEdicao" class="secondary-btn" hidden>
-        Cancelar edição
+      <h2 id="mesAtual"></h2>
+
+      <button type="button" id="mesProximo" class="icon-btn home-btn" aria-label="Próximo mês">
+        <span class="material-icons">chevron_right</span>
       </button>
+    </div>
 
-    </form>
+    <div class="calendario-grid" id="calendarioGrid"></div>
 
-    <div id="listaEventos"></div>
+    <section class="perfil-section">
+      <h2 id="tituloDiaSelecionado">Novo registro</h2>
+
+      <form id="agendaForm">
+
+        <input
+          type="text"
+          id="titulo"
+          placeholder="Título"
+          required
+        >
+
+        <select id="tipo" required>
+          <option value="compromisso">Compromisso</option>
+          <option value="lembrete">Lembrete</option>
+          <option value="anotacao">Anotação</option>
+        </select>
+
+        <select id="clienteId">
+          <option value="">Sem cliente vinculado</option>
+        </select>
+
+        <input
+          type="date"
+          id="data"
+          required
+        >
+
+        <input
+          type="time"
+          id="hora"
+          required
+        >
+
+        <textarea
+          id="descricao"
+          placeholder="Detalhes"
+          required
+        ></textarea>
+
+        <button type="submit">
+          Salvar
+        </button>
+
+        <button type="button" id="cancelarEdicao" class="secondary-btn" hidden>
+          Cancelar edição
+        </button>
+
+      </form>
+    </section>
+
+    <section class="perfil-section">
+      <h2>Próximos registros</h2>
+      <div id="listaEventos"></div>
+    </section>
 
   </div>
 

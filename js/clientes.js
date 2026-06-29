@@ -3,8 +3,12 @@ import { db } from "./firebase.js";
 import {
   collection,
   addDoc,
-  getDocs
+  getDocs,
+  query,
+  where
 } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+
+import { obterUsuarioAtual } from "./auth-user.js";
 
 const form = document.getElementById("clienteForm");
 const lista = document.getElementById("listaClientes");
@@ -17,6 +21,7 @@ const letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 let clientes = [];
 let clientesFiltrados = [];
+let usuarioAtual = null;
 
 novoClienteBtn.addEventListener("click", () => {
 
@@ -46,6 +51,7 @@ form.addEventListener("submit", async (e) => {
   try {
 
     const novoCliente = await addDoc(collection(db, "clientes"), {
+      userId: usuarioAtual.uid,
       nome,
       cpf,
       rg,
@@ -69,7 +75,9 @@ async function carregarClientes() {
   lista.innerHTML = "";
   clientes = [];
 
-  const querySnapshot = await getDocs(collection(db, "clientes"));
+  const querySnapshot = await getDocs(
+    query(collection(db, "clientes"), where("userId", "==", usuarioAtual.uid))
+  );
 
   querySnapshot.forEach((documento) => {
 
@@ -268,4 +276,11 @@ function escapeHTML(valor = "") {
 
 }
 
-carregarClientes();
+async function inicializar() {
+
+  usuarioAtual = await obterUsuarioAtual();
+  carregarClientes();
+
+}
+
+inicializar();

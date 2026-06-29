@@ -45,12 +45,9 @@
         required
       >
 
-      <input
-        type="text"
-        id="cliente"
-        placeholder="Cliente"
-        required
-      >
+      <select id="clienteId" required>
+        <option value="">Selecione o cliente</option>
+      </select>
 
       <input
         type="text"
@@ -71,6 +68,17 @@
         placeholder="Descrição"
         required
       ></textarea>
+
+      <label class="file-field">
+        <span>Anexo do processo (.pdf, .doc ou .docx)</span>
+        <input
+          type="file"
+          id="arquivo"
+          accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        >
+      </label>
+
+      <div id="arquivoAtual" class="arquivo-atual"></div>
 
       <button type="submit">
         Salvar

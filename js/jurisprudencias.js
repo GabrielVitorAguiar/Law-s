@@ -1,4 +1,4 @@
-import { db } from "./firebase.js";
+import { db, storage } from "./firebase.js";
 
 import {
   collection,
@@ -6,10 +6,20 @@ import {
   getDocs,
   doc,
   updateDoc,
-  deleteDoc
+  deleteDoc,
+  query,
+  where
 } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject
+} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js";
+
 import { registrarRecente } from "./recentes-store.js";
+import { obterUsuarioAtual, validarDonoDoRegistro } from "./auth-user.js";
 
 const form = document.getElementById("jurisForm");
 const lista = document.getElementById("listaJurisprudencias");
@@ -18,11 +28,15 @@ const novaJurisprudenciaBtn = document.getElementById("novaJurisprudenciaBtn");
 const cancelarEdicaoBtn = document.getElementById("cancelarEdicao");
 const jurisprudenciasToolbar = document.getElementById("jurisprudenciasToolbar");
 const voltarListaJurisprudencias = document.getElementById("voltarListaJurisprudencias");
+const arquivoInput = document.getElementById("arquivo");
+const arquivoAtual = document.getElementById("arquivoAtual");
 const params = new URLSearchParams(window.location.search);
 const jurisprudenciaIdSelecionada = params.get("id");
 
 let jurisprudencias = [];
 let editandoId = null;
+let jurisprudenciaEmEdicao = null;
+let usuarioAtual = null;
 
 novaJurisprudenciaBtn.addEventListener("click", () => {
 
@@ -35,32 +49,40 @@ form.addEventListener("submit", async (e) => {
 
   e.preventDefault();
 
-  const titulo = document.getElementById("titulo").value.trim();
-  const tribunal = document.getElementById("tribunal").value.trim();
-  const descricao = document.getElementById("descricao").value.trim();
+  const dados = {
+    userId: usuarioAtual.uid,
+    titulo: document.getElementById("titulo").value.trim(),
+    tribunal: document.getElementById("tribunal").value.trim(),
+    descricao: document.getElementById("descricao").value.trim()
+  };
+
+  const arquivo = arquivoInput.files[0];
 
   try {
 
     if (editandoId) {
 
-      await updateDoc(doc(db, "jurisprudencias", editandoId), {
-        titulo,
-        tribunal,
-        descricao
-      });
+      await updateDoc(doc(db, "jurisprudencias", editandoId), dados);
+
+      if (arquivo) {
+        await substituirArquivo(editandoId, jurisprudenciaEmEdicao, arquivo);
+      }
 
     } else {
 
-      await addDoc(collection(db, "jurisprudencias"), {
-        titulo,
-        tribunal,
-        descricao,
+      const novoDoc = await addDoc(collection(db, "jurisprudencias"), {
+        ...dados,
         criadoEm: new Date()
       });
+
+      if (arquivo) {
+        await substituirArquivo(novoDoc.id, null, arquivo);
+      }
 
     }
 
     form.reset();
+    limparArquivoAtual();
 
     if (jurisprudenciaIdSelecionada) {
       window.location.href = `jurisprudencias.html?id=${jurisprudenciaIdSelecionada}`;
@@ -83,7 +105,9 @@ async function carregarJurisprudencias() {
   lista.innerHTML = "";
   jurisprudencias = [];
 
-  const querySnapshot = await getDocs(collection(db, "jurisprudencias"));
+  const querySnapshot = await getDocs(
+    query(collection(db, "jurisprudencias"), where("userId", "==", usuarioAtual.uid))
+  );
 
   querySnapshot.forEach((documento) => {
 
@@ -103,7 +127,7 @@ async function carregarJurisprudencias() {
     jurisprudenciasToolbar.hidden = true;
     voltarListaJurisprudencias.hidden = false;
 
-    if (jurisprudenciaSelecionada) {
+    if (jurisprudenciaSelecionada && validarDonoDoRegistro(jurisprudenciaSelecionada, usuarioAtual)) {
       registrarRecente({
         chave: `jurisprudencia:${jurisprudenciaSelecionada.id}`,
         tipo: "jurisprudencia",
@@ -151,6 +175,8 @@ function renderizarJurisprudencias(listaJurisprudencias, modoDetalhe = false) {
 
       <p>${escapeHTML(jurisprudencia.descricao)}</p>
 
+      ${renderizarArquivo(jurisprudencia)}
+
       <div class="acoes">
 
         <button class="editar-btn" type="button">
@@ -187,7 +213,7 @@ function renderizarJurisprudencias(listaJurisprudencias, modoDetalhe = false) {
       .addEventListener("click", (event) => {
 
         event.stopPropagation();
-        excluirJurisprudencia(jurisprudencia.id);
+        excluirJurisprudencia(jurisprudencia);
 
       });
 
@@ -199,12 +225,14 @@ function renderizarJurisprudencias(listaJurisprudencias, modoDetalhe = false) {
 
 function editarJurisprudencia(jurisprudencia) {
 
-  document.getElementById("titulo").value = jurisprudencia.titulo;
-  document.getElementById("tribunal").value = jurisprudencia.tribunal;
-  document.getElementById("descricao").value = jurisprudencia.descricao;
+  document.getElementById("titulo").value = jurisprudencia.titulo || "";
+  document.getElementById("tribunal").value = jurisprudencia.tribunal || "";
+  document.getElementById("descricao").value = jurisprudencia.descricao || "";
 
   editandoId = jurisprudencia.id;
+  jurisprudenciaEmEdicao = jurisprudencia;
   abrirFormulario();
+  mostrarArquivoAtual(jurisprudencia);
 
   window.scrollTo({
     top: 0,
@@ -213,7 +241,7 @@ function editarJurisprudencia(jurisprudencia) {
 
 }
 
-async function excluirJurisprudencia(id) {
+async function excluirJurisprudencia(jurisprudencia) {
 
   const confirmar = confirm("Deseja realmente excluir esta jurisprudência?");
 
@@ -221,7 +249,11 @@ async function excluirJurisprudencia(id) {
 
   try {
 
-    await deleteDoc(doc(db, "jurisprudencias", id));
+    if (jurisprudencia.arquivoPath) {
+      await excluirArquivo(jurisprudencia.arquivoPath);
+    }
+
+    await deleteDoc(doc(db, "jurisprudencias", jurisprudencia.id));
 
     if (jurisprudenciaIdSelecionada) {
       window.location.href = "jurisprudencias.html";
@@ -261,6 +293,7 @@ pesquisa.addEventListener("input", () => {
 cancelarEdicaoBtn.addEventListener("click", () => {
 
   form.reset();
+  limparArquivoAtual();
 
   if (jurisprudenciaIdSelecionada) {
     window.location.href = "jurisprudencias.html";
@@ -270,6 +303,38 @@ cancelarEdicaoBtn.addEventListener("click", () => {
   fecharFormulario();
 
 });
+
+async function substituirArquivo(id, registroAtual, arquivo) {
+
+  if (registroAtual?.arquivoPath) {
+    await excluirArquivo(registroAtual.arquivoPath);
+  }
+
+  const arquivoPath = `usuarios/${usuarioAtual.uid}/jurisprudencias/${id}/${Date.now()}-${normalizarNomeArquivo(arquivo.name)}`;
+  const arquivoRef = ref(storage, arquivoPath);
+
+  await uploadBytes(arquivoRef, arquivo);
+
+  const arquivoUrl = await getDownloadURL(arquivoRef);
+
+  await updateDoc(doc(db, "jurisprudencias", id), {
+    arquivoNome: arquivo.name,
+    arquivoPath,
+    arquivoUrl,
+    arquivoTipo: arquivo.type
+  });
+
+}
+
+async function excluirArquivo(arquivoPath) {
+
+  try {
+    await deleteObject(ref(storage, arquivoPath));
+  } catch (error) {
+    console.warn("Não foi possível remover o arquivo antigo.", error);
+  }
+
+}
 
 function abrirFormulario() {
 
@@ -281,8 +346,53 @@ function abrirFormulario() {
 function fecharFormulario() {
 
   editandoId = null;
+  jurisprudenciaEmEdicao = null;
   form.hidden = true;
   novaJurisprudenciaBtn.hidden = false;
+
+}
+
+function mostrarArquivoAtual(registro) {
+
+  if (!registro?.arquivoUrl) {
+    limparArquivoAtual();
+    return;
+  }
+
+  arquivoAtual.innerHTML = `
+    <a class="arquivo-link" href="${registro.arquivoUrl}" target="_blank" download>
+      <span class="material-icons">download</span>
+      ${escapeHTML(registro.arquivoNome || "Baixar arquivo")}
+    </a>
+  `;
+
+}
+
+function limparArquivoAtual() {
+
+  arquivoAtual.innerHTML = "";
+
+}
+
+function renderizarArquivo(registro) {
+
+  if (!registro.arquivoUrl) return "";
+
+  return `
+    <a class="arquivo-link" href="${registro.arquivoUrl}" target="_blank" download>
+      <span class="material-icons">download</span>
+      ${escapeHTML(registro.arquivoNome || "Baixar arquivo")}
+    </a>
+  `;
+
+}
+
+function normalizarNomeArquivo(nome = "") {
+
+  return String(nome)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9.-]/g, "-");
 
 }
 
@@ -306,4 +416,11 @@ function escapeHTML(valor = "") {
 
 }
 
-carregarJurisprudencias();
+async function inicializar() {
+
+  usuarioAtual = await obterUsuarioAtual();
+  carregarJurisprudencias();
+
+}
+
+inicializar();

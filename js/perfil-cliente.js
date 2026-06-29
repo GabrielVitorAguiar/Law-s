@@ -6,10 +6,13 @@ import {
   doc,
   getDoc,
   updateDoc,
-  deleteDoc
+  deleteDoc,
+  query,
+  where
 } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
 import { registrarRecente } from "./recentes-store.js";
+import { obterUsuarioAtual, validarDonoDoRegistro } from "./auth-user.js";
 
 const params = new URLSearchParams(window.location.search);
 const clienteId = params.get("id");
@@ -20,8 +23,10 @@ const anotacoes = document.getElementById("anotacoes");
 const salvarAnotacoesBtn = document.getElementById("salvarAnotacoes");
 const excluirClienteBtn = document.getElementById("excluirCliente");
 const processosCliente = document.getElementById("processosCliente");
+const compromissosCliente = document.getElementById("compromissosCliente");
 
 let clienteAtual = null;
+let usuarioAtual = null;
 
 if (!clienteId) {
   window.location.href = "clientes.html";
@@ -39,6 +44,7 @@ form.addEventListener("submit", async (e) => {
   try {
 
     await updateDoc(doc(db, "clientes", clienteId), {
+      userId: usuarioAtual.uid,
       nome,
       cpf,
       rg,
@@ -55,6 +61,7 @@ form.addEventListener("submit", async (e) => {
 
     tituloCliente.textContent = nome;
     carregarProcessosDoCliente();
+    carregarCompromissosDoCliente();
 
   } catch (error) {
 
@@ -114,6 +121,11 @@ async function carregarCliente() {
     ...clienteSnap.data()
   };
 
+  if (!validarDonoDoRegistro(clienteAtual, usuarioAtual)) {
+    window.location.href = "clientes.html";
+    return;
+  }
+
   tituloCliente.textContent = clienteAtual.nome;
 
   registrarRecente({
@@ -130,6 +142,7 @@ async function carregarCliente() {
   anotacoes.value = clienteAtual.anotacoes || "";
 
   carregarProcessosDoCliente();
+  carregarCompromissosDoCliente();
 
 }
 
@@ -137,7 +150,9 @@ async function carregarProcessosDoCliente() {
 
   processosCliente.innerHTML = "";
 
-  const querySnapshot = await getDocs(collection(db, "processos"));
+  const querySnapshot = await getDocs(
+    query(collection(db, "processos"), where("userId", "==", usuarioAtual.uid))
+  );
   const nomeCliente = normalizar(clienteAtual.nome);
 
   const processos = [];
@@ -186,9 +201,113 @@ async function carregarProcessosDoCliente() {
 
 }
 
+async function carregarCompromissosDoCliente() {
+
+  compromissosCliente.innerHTML = "";
+
+  const querySnapshot = await getDocs(
+    query(collection(db, "calendario"), where("userId", "==", usuarioAtual.uid))
+  );
+  const nomeCliente = normalizar(clienteAtual.nome);
+  const hoje = dataParaInput(new Date());
+
+  const compromissos = [];
+
+  querySnapshot.forEach((documento) => {
+
+    const compromisso = {
+      id: documento.id,
+      ...documento.data()
+    };
+
+    const pertenceAoCliente =
+      compromisso.clienteId === clienteId ||
+      normalizar(compromisso.cliente) === nomeCliente;
+
+    if (pertenceAoCliente && dataHora(compromisso) >= `${hoje} 00:00`) {
+      compromissos.push(compromisso);
+    }
+
+  });
+
+  compromissos.sort((a, b) => dataHora(a).localeCompare(dataHora(b)));
+
+  if (compromissos.length === 0) {
+
+    compromissosCliente.innerHTML = `<p class="empty-state">Nenhum compromisso próximo vinculado a este cliente.</p>`;
+    return;
+
+  }
+
+  compromissos.slice(0, 5).forEach((compromisso) => {
+
+    const div = document.createElement("div");
+
+    div.classList.add("registro-card");
+
+    div.innerHTML = `
+
+      <h3>${escapeHTML(compromisso.titulo)}</h3>
+
+      <p><strong>Tipo:</strong> ${escapeHTML(rotuloTipo(compromisso.tipo))}</p>
+
+      <p><strong>Data:</strong> ${formatarData(compromisso.data)} às ${escapeHTML(compromisso.hora)}</p>
+
+      <p>${escapeHTML(compromisso.descricao)}</p>
+
+    `;
+
+    compromissosCliente.appendChild(div);
+
+  });
+
+}
+
 function normalizar(valor = "") {
 
-  return String(valor).trim().toLowerCase();
+  return String(valor)
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+}
+
+function dataHora(evento) {
+
+  return `${evento.data || ""} ${evento.hora || "00:00"}`;
+
+}
+
+function dataParaInput(data) {
+
+  const ano = data.getFullYear();
+  const mes = String(data.getMonth() + 1).padStart(2, "0");
+  const dia = String(data.getDate()).padStart(2, "0");
+
+  return `${ano}-${mes}-${dia}`;
+
+}
+
+function formatarData(data) {
+
+  if (!data) return "";
+
+  const [ano, mes, dia] = data.split("-");
+
+  return `${dia}/${mes}/${ano}`;
+
+}
+
+function rotuloTipo(tipo = "") {
+
+  const tipos = {
+    compromisso: "Compromisso",
+    lembrete: "Lembrete",
+    anotacao: "Anotação"
+  };
+
+  return tipos[tipo] || "Registro";
 
 }
 
@@ -203,4 +322,11 @@ function escapeHTML(valor = "") {
 
 }
 
-carregarCliente();
+async function inicializar() {
+
+  usuarioAtual = await obterUsuarioAtual();
+  carregarCliente();
+
+}
+
+inicializar();

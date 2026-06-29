@@ -73,7 +73,8 @@ body {
   color: #777;
 }
 
-input {
+input,
+select {
   width: 100%;
   box-sizing: border-box;
   padding: 12px;
@@ -82,6 +83,10 @@ input {
   margin-bottom: 10px;
   background: #2d2d2d;
   color: white;
+}
+
+select {
+  appearance: none;
 }
 
 .continue-btn {
@@ -387,6 +392,110 @@ textarea {
   color: #aaa;
 }
 
+.file-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 12px;
+  background: #1c1c1c;
+  color: #ddd;
+}
+
+.file-field input {
+  margin-bottom: 0;
+}
+
+.arquivo-atual {
+  min-height: 0;
+}
+
+.arquivo-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #2d2d2d;
+  color: white;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.arquivo-link:hover {
+  background: #3a3a3a;
+}
+
+.calendario-container {
+  max-width: 1080px;
+}
+
+.calendario-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin: 20px 0;
+}
+
+.calendario-header h2 {
+  min-width: 260px;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.calendario-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.calendario-dia-semana {
+  padding: 10px;
+  color: #aaa;
+  text-align: center;
+  font-weight: 700;
+}
+
+.calendario-dia,
+.calendario-vazio {
+  min-height: 92px;
+  border-radius: 12px;
+}
+
+.calendario-dia {
+  border: 1px solid #2a2a2a;
+  background: #1c1c1c;
+  color: white;
+  cursor: pointer;
+  padding: 10px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: 0.2s;
+}
+
+.calendario-dia:hover,
+.calendario-dia.selecionado {
+  border-color: white;
+  background: #2a2a2a;
+}
+
+.calendario-dia.com-eventos small {
+  align-self: flex-end;
+  min-width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: white;
+  color: black;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
 .editar-btn {
   margin-top: 10px;
   padding: 10px;
@@ -461,6 +570,29 @@ textarea {
     width: 24px;
     height: 20px;
     font-size: 11px;
+  }
+
+  .calendario-header h2 {
+    min-width: 160px;
+    font-size: 18px;
+  }
+
+  .calendario-grid {
+    gap: 4px;
+  }
+
+  .calendario-dia,
+  .calendario-vazio {
+    min-height: 64px;
+  }
+
+  .calendario-dia {
+    padding: 7px;
+  }
+
+  .calendario-dia-semana {
+    padding: 6px 2px;
+    font-size: 12px;
   }
 }
 

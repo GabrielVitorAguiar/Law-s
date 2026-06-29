@@ -1,4 +1,4 @@
-import { db } from "./firebase.js";
+import { db, storage } from "./firebase.js";
 
 import {
   collection,
@@ -6,10 +6,20 @@ import {
   getDocs,
   doc,
   updateDoc,
-  deleteDoc
+  deleteDoc,
+  query,
+  where
 } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject
+} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js";
+
 import { registrarRecente } from "./recentes-store.js";
+import { obterUsuarioAtual, validarDonoDoRegistro } from "./auth-user.js";
 
 const form = document.getElementById("processoForm");
 const lista = document.getElementById("listaProcessos");
@@ -18,11 +28,17 @@ const novoProcessoBtn = document.getElementById("novoProcessoBtn");
 const cancelarEdicaoBtn = document.getElementById("cancelarEdicao");
 const processosToolbar = document.getElementById("processosToolbar");
 const voltarListaProcessos = document.getElementById("voltarListaProcessos");
+const clienteSelect = document.getElementById("clienteId");
+const arquivoInput = document.getElementById("arquivo");
+const arquivoAtual = document.getElementById("arquivoAtual");
 const params = new URLSearchParams(window.location.search);
 const processoIdSelecionado = params.get("id");
 
 let processos = [];
+let clientes = [];
 let editandoId = null;
+let processoEmEdicao = null;
+let usuarioAtual = null;
 
 novoProcessoBtn.addEventListener("click", () => {
 
@@ -35,38 +51,45 @@ form.addEventListener("submit", async (e) => {
 
   e.preventDefault();
 
-  const numero = document.getElementById("numero").value.trim();
-  const cliente = document.getElementById("cliente").value.trim();
-  const area = document.getElementById("area").value.trim();
-  const status = document.getElementById("status").value.trim();
-  const descricao = document.getElementById("descricao").value.trim();
+  const clienteSelecionado = clientes.find((cliente) => cliente.id === clienteSelect.value);
+
+  const dados = {
+    userId: usuarioAtual.uid,
+    numero: document.getElementById("numero").value.trim(),
+    clienteId: clienteSelect.value,
+    cliente: clienteSelecionado?.nome || "",
+    area: document.getElementById("area").value.trim(),
+    status: document.getElementById("status").value.trim(),
+    descricao: document.getElementById("descricao").value.trim()
+  };
+
+  const arquivo = arquivoInput.files[0];
 
   try {
 
     if (editandoId) {
 
-      await updateDoc(doc(db, "processos", editandoId), {
-        numero,
-        cliente,
-        area,
-        status,
-        descricao
-      });
+      await updateDoc(doc(db, "processos", editandoId), dados);
+
+      if (arquivo) {
+        await substituirArquivo(editandoId, processoEmEdicao, arquivo);
+      }
 
     } else {
 
-      await addDoc(collection(db, "processos"), {
-        numero,
-        cliente,
-        area,
-        status,
-        descricao,
+      const novoDoc = await addDoc(collection(db, "processos"), {
+        ...dados,
         criadoEm: new Date()
       });
+
+      if (arquivo) {
+        await substituirArquivo(novoDoc.id, null, arquivo);
+      }
 
     }
 
     form.reset();
+    limparArquivoAtual();
 
     if (processoIdSelecionado) {
       window.location.href = `processos.html?id=${processoIdSelecionado}`;
@@ -84,12 +107,62 @@ form.addEventListener("submit", async (e) => {
 
 });
 
+async function inicializar() {
+
+  usuarioAtual = await obterUsuarioAtual();
+  await carregarClientes();
+  await carregarProcessos();
+
+}
+
+async function carregarClientes() {
+
+  clientes = [];
+
+  const querySnapshot = await getDocs(
+    query(collection(db, "clientes"), where("userId", "==", usuarioAtual.uid))
+  );
+
+  querySnapshot.forEach((documento) => {
+
+    clientes.push({
+      id: documento.id,
+      ...documento.data()
+    });
+
+  });
+
+  clientes.sort((a, b) => valorTexto(a.nome).localeCompare(valorTexto(b.nome), "pt-BR"));
+
+  renderizarClientesNoSelect();
+
+}
+
+function renderizarClientesNoSelect() {
+
+  clienteSelect.innerHTML = `<option value="">Selecione o cliente</option>`;
+
+  clientes.forEach((cliente) => {
+
+    const option = document.createElement("option");
+
+    option.value = cliente.id;
+    option.textContent = cliente.nome;
+
+    clienteSelect.appendChild(option);
+
+  });
+
+}
+
 async function carregarProcessos() {
 
   lista.innerHTML = "";
   processos = [];
 
-  const querySnapshot = await getDocs(collection(db, "processos"));
+  const querySnapshot = await getDocs(
+    query(collection(db, "processos"), where("userId", "==", usuarioAtual.uid))
+  );
 
   querySnapshot.forEach((documento) => {
 
@@ -109,7 +182,7 @@ async function carregarProcessos() {
     processosToolbar.hidden = true;
     voltarListaProcessos.hidden = false;
 
-    if (processoSelecionado) {
+    if (processoSelecionado && validarDonoDoRegistro(processoSelecionado, usuarioAtual)) {
       registrarRecente({
         chave: `processo:${processoSelecionado.id}`,
         tipo: "processo",
@@ -153,13 +226,15 @@ function renderizarProcessos(listaProcessos, modoDetalhe = false) {
 
       <h3>${escapeHTML(processo.numero)}</h3>
 
-      <p><strong>Cliente:</strong> ${escapeHTML(processo.cliente)}</p>
+      <p><strong>Cliente:</strong> ${escapeHTML(nomeClienteDoProcesso(processo))}</p>
 
       <p><strong>Área:</strong> ${escapeHTML(processo.area)}</p>
 
       <p><strong>Status:</strong> ${escapeHTML(processo.status)}</p>
 
       <p>${escapeHTML(processo.descricao)}</p>
+
+      ${renderizarArquivo(processo)}
 
       <div class="acoes">
 
@@ -197,7 +272,7 @@ function renderizarProcessos(listaProcessos, modoDetalhe = false) {
       .addEventListener("click", (event) => {
 
         event.stopPropagation();
-        excluirProcesso(processo.id);
+        excluirProcesso(processo);
 
       });
 
@@ -209,14 +284,16 @@ function renderizarProcessos(listaProcessos, modoDetalhe = false) {
 
 function editarProcesso(processo) {
 
-  document.getElementById("numero").value = processo.numero;
-  document.getElementById("cliente").value = processo.cliente;
-  document.getElementById("area").value = processo.area;
-  document.getElementById("status").value = processo.status;
-  document.getElementById("descricao").value = processo.descricao;
+  document.getElementById("numero").value = processo.numero || "";
+  clienteSelect.value = processo.clienteId || clienteIdPorNome(processo.cliente) || "";
+  document.getElementById("area").value = processo.area || "";
+  document.getElementById("status").value = processo.status || "";
+  document.getElementById("descricao").value = processo.descricao || "";
 
   editandoId = processo.id;
+  processoEmEdicao = processo;
   abrirFormulario();
+  mostrarArquivoAtual(processo);
 
   window.scrollTo({
     top: 0,
@@ -225,7 +302,7 @@ function editarProcesso(processo) {
 
 }
 
-async function excluirProcesso(id) {
+async function excluirProcesso(processo) {
 
   const confirmar = confirm("Deseja realmente excluir este processo?");
 
@@ -233,7 +310,11 @@ async function excluirProcesso(id) {
 
   try {
 
-    await deleteDoc(doc(db, "processos", id));
+    if (processo.arquivoPath) {
+      await excluirArquivo(processo.arquivoPath);
+    }
+
+    await deleteDoc(doc(db, "processos", processo.id));
 
     if (processoIdSelecionado) {
       window.location.href = "processos.html";
@@ -256,7 +337,12 @@ pesquisa.addEventListener("input", () => {
 
   const filtrados = processos.filter((processo) => {
 
-    return Object.values(processo).some((campo) => {
+    const processoPesquisavel = {
+      ...processo,
+      cliente: nomeClienteDoProcesso(processo)
+    };
+
+    return Object.values(processoPesquisavel).some((campo) => {
 
       if (campo === null || campo === undefined) return false;
 
@@ -273,6 +359,7 @@ pesquisa.addEventListener("input", () => {
 cancelarEdicaoBtn.addEventListener("click", () => {
 
   form.reset();
+  limparArquivoAtual();
 
   if (processoIdSelecionado) {
     window.location.href = "processos.html";
@@ -282,6 +369,38 @@ cancelarEdicaoBtn.addEventListener("click", () => {
   fecharFormulario();
 
 });
+
+async function substituirArquivo(id, registroAtual, arquivo) {
+
+  if (registroAtual?.arquivoPath) {
+    await excluirArquivo(registroAtual.arquivoPath);
+  }
+
+  const arquivoPath = `usuarios/${usuarioAtual.uid}/processos/${id}/${Date.now()}-${normalizarNomeArquivo(arquivo.name)}`;
+  const arquivoRef = ref(storage, arquivoPath);
+
+  await uploadBytes(arquivoRef, arquivo);
+
+  const arquivoUrl = await getDownloadURL(arquivoRef);
+
+  await updateDoc(doc(db, "processos", id), {
+    arquivoNome: arquivo.name,
+    arquivoPath,
+    arquivoUrl,
+    arquivoTipo: arquivo.type
+  });
+
+}
+
+async function excluirArquivo(arquivoPath) {
+
+  try {
+    await deleteObject(ref(storage, arquivoPath));
+  } catch (error) {
+    console.warn("Não foi possível remover o arquivo antigo.", error);
+  }
+
+}
 
 function abrirFormulario() {
 
@@ -293,8 +412,70 @@ function abrirFormulario() {
 function fecharFormulario() {
 
   editandoId = null;
+  processoEmEdicao = null;
   form.hidden = true;
   novoProcessoBtn.hidden = false;
+
+}
+
+function mostrarArquivoAtual(registro) {
+
+  if (!registro?.arquivoUrl) {
+    limparArquivoAtual();
+    return;
+  }
+
+  arquivoAtual.innerHTML = `
+    <a class="arquivo-link" href="${registro.arquivoUrl}" target="_blank" download>
+      <span class="material-icons">download</span>
+      ${escapeHTML(registro.arquivoNome || "Baixar arquivo")}
+    </a>
+  `;
+
+}
+
+function limparArquivoAtual() {
+
+  arquivoAtual.innerHTML = "";
+
+}
+
+function renderizarArquivo(registro) {
+
+  if (!registro.arquivoUrl) return "";
+
+  return `
+    <a class="arquivo-link" href="${registro.arquivoUrl}" target="_blank" download>
+      <span class="material-icons">download</span>
+      ${escapeHTML(registro.arquivoNome || "Baixar arquivo")}
+    </a>
+  `;
+
+}
+
+function nomeClienteDoProcesso(processo) {
+
+  const cliente = clientes.find((item) => item.id === processo.clienteId);
+
+  return cliente?.nome || processo.cliente || "";
+
+}
+
+function clienteIdPorNome(nome = "") {
+
+  const nomeNormalizado = valorTexto(nome);
+  const cliente = clientes.find((item) => valorTexto(item.nome) === nomeNormalizado);
+
+  return cliente?.id || "";
+
+}
+
+function normalizarNomeArquivo(nome = "") {
+
+  return String(nome)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9.-]/g, "-");
 
 }
 
@@ -318,4 +499,4 @@ function escapeHTML(valor = "") {
 
 }
 
-carregarProcessos();
+inicializar();

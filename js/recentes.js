@@ -1,18 +1,31 @@
+import { auth } from "./firebase.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+
 const recentesContainer = document.getElementById("recentes");
 const botaoAnterior = document.getElementById("recentesAnterior");
 const botaoProximo = document.getElementById("recentesProximo");
 
-const recentes = JSON.parse(localStorage.getItem("recentes")) || [];
 const iconesPorTipo = {
   cliente: "person",
   processo: "folder",
   jurisprudencia: "gavel"
 };
 
-renderizarRecentes();
-atualizarBotoes();
+let recentes = [];
+let storageKey = "recentes:anonimo";
+
+onAuthStateChanged(auth, (user) => {
+
+  storageKey = `recentes:${user?.uid || "anonimo"}`;
+  recentes = JSON.parse(localStorage.getItem(storageKey)) || [];
+
+  renderizarRecentes();
+  atualizarBotoes();
+  requestAnimationFrame(atualizarBotoes);
+
+});
+
 window.addEventListener("resize", atualizarBotoes);
-requestAnimationFrame(atualizarBotoes);
 
 botaoAnterior.addEventListener("click", () => {
 
@@ -80,13 +93,15 @@ function promoverRecente(item) {
 
   const semRepeticao = recentes.filter((recente) => recente.chave !== item.chave);
 
-  localStorage.setItem("recentes", JSON.stringify([
+  recentes = [
     {
       ...item,
       acessadoEm: new Date().toISOString()
     },
     ...semRepeticao
-  ]));
+  ];
+
+  localStorage.setItem(storageKey, JSON.stringify(recentes));
 
 }
 
