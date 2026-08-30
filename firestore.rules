@@ -1,0 +1,72 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function createsOwnDocument() {
+      return signedIn() && request.resource.data.userId == request.auth.uid;
+    }
+
+    function readsOwnDocument() {
+      return signedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    function updatesOwnDocument() {
+      return signedIn()
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == request.auth.uid;
+    }
+
+    match /processos_monitorados/{processoId} {
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly([
+          'id', 'numeroProcesso', 'tribunal', 'clienteId',
+          'advogadoResponsavelId', 'dataCadastro', 'ativo',
+          'primeiraConsultaFeita', 'ultimaConsulta',
+          'ultimaMovimentacaoId', 'classeProcessual', 'assunto',
+          'orgaoJulgador'
+        ])
+        && request.resource.data.keys().hasAll([
+          'id', 'numeroProcesso', 'tribunal', 'clienteId',
+          'advogadoResponsavelId', 'dataCadastro', 'ativo',
+          'primeiraConsultaFeita', 'ultimaConsulta',
+          'ultimaMovimentacaoId', 'classeProcessual', 'assunto',
+          'orgaoJulgador'
+        ])
+        && request.resource.data.id == processoId
+        && request.resource.data.advogadoResponsavelId == request.auth.uid
+        && request.resource.data.numeroProcesso is string
+        && request.resource.data.numeroProcesso.matches('^[0-9]{7}-[0-9]{2}\\.[0-9]{4}\\.[0-9]\\.[0-9]{2}\\.[0-9]{4}$')
+        && request.resource.data.ativo == true
+        && request.resource.data.primeiraConsultaFeita == false
+        && request.resource.data.classeProcessual == null
+        && request.resource.data.assunto == null
+        && request.resource.data.orgaoJulgador == null
+        && request.resource.data.ultimaConsulta == null
+        && request.resource.data.ultimaMovimentacaoId == null;
+      allow read: if signedIn()
+        && resource.data.advogadoResponsavelId == request.auth.uid;
+      allow update, delete: if false;
+
+      match /movimentacoes/{movimentacaoId} {
+        allow read: if signedIn()
+          && get(/databases/$(database)/documents/processos_monitorados/$(processoId)).data.advogadoResponsavelId == request.auth.uid;
+        allow write: if false;
+      }
+    }
+
+    match /notificacoes_usuario/{notificacaoId} {
+      allow read: if signedIn() && resource.data.usuarioId == request.auth.uid;
+      allow write: if false;
+    }
+
+    match /{document=**} {
+      allow create: if createsOwnDocument();
+      allow read, delete: if readsOwnDocument();
+      allow update: if updatesOwnDocument();
+    }
+  }
+}

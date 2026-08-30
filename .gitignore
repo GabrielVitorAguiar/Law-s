@@ -3,6 +3,8 @@ node_modules/
 
 # Variáveis sensíveis
 .env
+*.service-account.json
+service-account.json
 
 # Editor
 .vscode/

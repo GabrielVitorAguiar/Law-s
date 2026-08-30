@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Jurisprudências</title>
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+
+<body>
+
+  <div class="crud-container">
+
+    <div class="page-actions">
+      <a class="home-btn icon-btn" href="index.html" aria-label="Voltar para a home">
+        <span class="material-icons">home</span>
+      </a>
+
+      <a class="home-btn icon-btn" id="voltarListaJurisprudencias" href="jurisprudencias.html" aria-label="Voltar para jurisprudências" hidden>
+        <span class="material-icons">arrow_back</span>
+      </a>
+    </div>
+
+    <h1>Jurisprudências</h1>
+
+    <div class="clientes-toolbar" id="jurisprudenciasToolbar">
+      <input
+        type="text"
+        id="pesquisa"
+        placeholder="Pesquisar por título, tribunal, descrição, assunto..."
+      >
+
+      <button type="button" id="novaJurisprudenciaBtn" class="primary-btn">
+        Adicionar jurisprudência
+      </button>
+    </div>
+
+    <form id="jurisForm" hidden>
+
+      <input
+        type="text"
+        id="titulo"
+        placeholder="Título"
+        required
+      >
+
+      <input
+        type="text"
+        id="tribunal"
+        placeholder="Tribunal"
+        required
+      >
+
+      <textarea
+        id="descricao"
+        placeholder="Descrição"
+        required
+      ></textarea>
+
+      <label class="file-field">
+        <span>Arquivo completo (.pdf, .doc ou .docx)</span>
+        <input
+          type="file"
+          id="arquivo"
+          accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        >
+      </label>
+
+      <div id="arquivoAtual" class="arquivo-atual"></div>
+
+      <button type="submit">
+        Salvar
+      </button>
+
+      <button type="button" id="cancelarEdicao" class="secondary-btn">
+        Cancelar
+      </button>
+
+    </form>
+
+    <div id="listaJurisprudencias"></div>
+
+  </div>
+
+  <script type="module" src="js/jurisprudencias.js"></script>
+
+</body>
+</html>
