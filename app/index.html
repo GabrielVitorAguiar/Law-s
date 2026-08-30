@@ -22,6 +22,39 @@
   });
 </script>
 
+<div class="user-menu" id="userMenu">
+  <button class="user-menu-trigger" id="userMenuTrigger" type="button" aria-expanded="false" aria-controls="userMenuPanel" aria-label="Abrir menu do usuário">
+    <span class="material-icons">account_circle</span>
+  </button>
+
+  <div class="user-menu-panel" id="userMenuPanel" hidden>
+    <div class="user-menu-heading">
+      <span class="material-icons">account_circle</span>
+      <div>
+        <strong id="userMenuName">Minha conta</strong>
+        <small id="userMenuEmail"></small>
+      </div>
+    </div>
+
+    <button class="user-menu-option coming-soon" type="button" title="Em breve">
+      <span class="material-icons">person</span>
+      <span>Perfil</span>
+    </button>
+
+    <button class="user-menu-option coming-soon" type="button" title="Em breve">
+      <span class="material-icons">settings</span>
+      <span>Configurações</span>
+    </button>
+
+    <div class="user-menu-divider"></div>
+
+    <button class="user-menu-option logout-option" id="logoutBtn" type="button">
+      <span class="material-icons">logout</span>
+      <span>Sair</span>
+    </button>
+  </div>
+</div>
+
 <div class="menu">
 
   <div class="menu-item" onclick="goTo('clientes.html')" aria-label="Abrir clientes">
@@ -71,6 +104,7 @@
 </script>
 
 <script type="module" src="./js/recentes.js"></script>
+<script type="module" src="./js/user-menu.js"></script>
 
 </body>
 </html>
