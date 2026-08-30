@@ -1,0 +1,15 @@
+{
+  "name": "law-s-worker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Workers agendados para integração segura com serviços externos.",
+  "type": "module",
+  "scripts": {
+    "processar:novos-processos": "node scripts/processarNovosProcessos.js",
+    "consultar:movimentacoes": "node scripts/consultarMovimentacoes.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.1",
+    "puppeteer": "^24.0.0"
+  }
+}
