@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal do Cliente - Law's</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+  <main class="portal-client-container">
+    <section id="acessoPortal" class="modal portal-login-card">
+      <h1>Área do cliente</h1>
+      <p>Informe o código fornecido pelo seu advogado para consultar seus processos, mensagens e documentos.</p>
+      <form id="codigoForm">
+        <input id="codigoInformado" type="text" placeholder="Código de acesso" autocomplete="off" required>
+        <button class="primary-btn" type="submit">Acessar</button>
+      </form>
+      <p id="erroCodigo" class="form-feedback" aria-live="polite"></p>
+      <a class="portal-voltar" href="login.html">Voltar</a>
+    </section>
+
+    <section id="portalCliente" class="crud-container" hidden>
+      <div class="page-actions portal-top-actions">
+        <h1 id="boasVindasCliente">Área do cliente</h1>
+        <button id="sairPortal" class="secondary-btn" type="button">Sair</button>
+      </div>
+
+      <section class="perfil-section">
+        <h2>Status dos processos</h2>
+        <div id="processosClientePortal"></div>
+      </section>
+
+      <section class="perfil-section">
+        <h2>Mensagens do advogado</h2>
+        <div id="mensagensCliente" class="mensagens-lista"></div>
+      </section>
+
+      <section class="perfil-section">
+        <h2>Documentos disponibilizados</h2>
+        <button id="abrirDocumentosAdvogado" class="folder-btn" type="button">
+          <span class="material-icons">folder</span>
+          Abrir documentos
+        </button>
+        <div id="documentosAdvogadoCliente" class="arquivos-lista" hidden></div>
+      </section>
+
+      <section class="perfil-section">
+        <h2>Enviar documentos ao advogado</h2>
+        <p>Envie arquivos de até 10 MB, como RG, PDF ou imagem.</p>
+        <label class="file-field">
+          <span>Selecionar documento</span>
+          <input id="arquivoCliente" type="file" accept="application/pdf,image/*,.doc,.docx">
+        </label>
+        <button id="enviarArquivoCliente" class="primary-btn" type="button">Enviar documento</button>
+        <p id="arquivoClienteFeedback" class="form-feedback" aria-live="polite"></p>
+        <div id="documentosEnviadosCliente" class="arquivos-lista"></div>
+      </section>
+    </section>
+  </main>
+  <script type="module" src="./js/portal-cliente.js"></script>
+</body>
+</html>

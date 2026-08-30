@@ -111,6 +111,18 @@ select {
   padding: 40px 20px;
 }
 
+.client-access-btn {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px;
+  border-radius: 25px;
+  background: white;
+  color: black;
+  text-decoration: none;
+  font-weight: 700;
+}
+
 .menu-item {
   background: #2d2d2d;
   border-radius: 20px;
@@ -449,6 +461,146 @@ textarea {
 
 .perfil-section h2 {
   margin-bottom: 14px;
+}
+
+.portal-link-section {
+  padding: 20px;
+  border-radius: 14px;
+  background: #1c1c1c;
+}
+
+.portal-link {
+  display: inline-block;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.portal-admin-card {
+  padding: 22px;
+  border-radius: 14px;
+  background: #1c1c1c;
+}
+
+.portal-admin-card h2 {
+  margin-top: 0;
+}
+
+.codigo-acesso {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  padding: 14px;
+  border-radius: 10px;
+  background: #121212;
+}
+
+.codigo-acesso code {
+  flex: 1;
+  overflow-wrap: anywhere;
+  color: #c9d8ff;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.section-heading,
+.portal-top-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.section-heading h2,
+.portal-top-actions h1 {
+  margin: 0;
+}
+
+.form-feedback {
+  min-height: 20px;
+  color: #c9d8ff;
+}
+
+.mensagens-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.mensagem-card {
+  padding: 16px;
+  border-radius: 12px;
+  background: #1c1c1c;
+  border-left: 4px solid #c9d8ff;
+}
+
+.mensagem-card p {
+  margin: 0 0 10px;
+  white-space: pre-wrap;
+}
+
+.mensagem-card small {
+  color: #aaa;
+}
+
+.arquivos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.arquivo-item {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #1c1c1c;
+}
+
+.arquivo-item span {
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+
+.folder-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 10px;
+  background: white;
+  color: black;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.portal-client-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.portal-login-card {
+  position: static;
+}
+
+.portal-login-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.portal-voltar {
+  display: inline-block;
+  margin-top: 8px;
+  color: #ccc;
 }
 
 .perfil-section textarea {

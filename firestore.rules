@@ -20,6 +20,16 @@ service cloud.firestore {
         && request.resource.data.userId == request.auth.uid;
     }
 
+    function portalValido(codigo) {
+      return exists(/databases/$(database)/documents/portais_cliente/$(codigo))
+        && get(/databases/$(database)/documents/portais_cliente/$(codigo)).data.codigo == codigo;
+    }
+
+    function advogadoDoPortal(codigo) {
+      return signedIn()
+        && get(/databases/$(database)/documents/portais_cliente/$(codigo)).data.advogadoId == request.auth.uid;
+    }
+
     match /processos_monitorados/{processoId} {
       allow create: if signedIn()
         && request.resource.data.keys().hasOnly([
@@ -63,7 +73,43 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    match /{document=**} {
+    // O código é o identificador aleatório e não enumerável do portal do cliente.
+    // Não há permissão para listar portais sem autenticação do advogado responsável.
+    match /portais_cliente/{codigo} {
+      allow get: if resource.data.codigo == codigo;
+      allow list: if signedIn() && resource.data.advogadoId == request.auth.uid;
+      allow create: if signedIn()
+        && request.resource.data.codigo == codigo
+        && request.resource.data.advogadoId == request.auth.uid;
+      allow update, delete: if advogadoDoPortal(codigo);
+
+      match /mensagens/{mensagemId} {
+        allow read: if portalValido(codigo);
+        allow write: if advogadoDoPortal(codigo);
+      }
+    }
+
+    // Coleções já existentes, cujo proprietário é definido por userId.
+    match /clientes/{documentoId} {
+      allow create: if createsOwnDocument();
+      allow read, delete: if readsOwnDocument();
+      allow update: if updatesOwnDocument();
+    }
+
+    match /processos/{documentoId} {
+      allow create: if createsOwnDocument();
+      allow read, delete: if readsOwnDocument();
+      allow update: if updatesOwnDocument();
+    }
+
+    match /calendario/{documentoId} {
+      allow create: if createsOwnDocument();
+      allow read, delete: if readsOwnDocument();
+      allow update: if updatesOwnDocument();
+    }
+
+    // Mantido temporariamente para o CRUD legado. Será restringido na Parte 3.
+    match /jurisprudencias/{documentoId} {
       allow create: if createsOwnDocument();
       allow read, delete: if readsOwnDocument();
       allow update: if updatesOwnDocument();

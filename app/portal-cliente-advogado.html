@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Área do Cliente</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+  <main class="crud-container">
+    <div class="page-actions">
+      <a class="home-btn icon-btn" href="clientes.html" aria-label="Voltar para clientes"><span class="material-icons">arrow_back</span></a>
+      <a class="home-btn icon-btn" href="index.html" aria-label="Ir para home"><span class="material-icons">home</span></a>
+    </div>
+
+    <h1 id="tituloPortal">Área do cliente</h1>
+
+    <section class="portal-admin-card">
+      <h2>Código de acesso</h2>
+      <p id="codigoAjuda">Gere um código único para fornecer ao cliente.</p>
+      <div class="codigo-acesso" id="codigoAcesso" hidden>
+        <code id="codigoPortal"></code>
+        <button id="copiarCodigo" class="secondary-btn" type="button">Copiar</button>
+      </div>
+      <button id="gerarCodigo" class="primary-btn" type="button">Gerar código seguro</button>
+      <p id="codigoFeedback" class="form-feedback" aria-live="polite"></p>
+    </section>
+
+    <section id="conteudoPortal" hidden>
+      <section class="perfil-section">
+        <div class="section-heading">
+          <h2>Status dos processos</h2>
+          <button id="atualizarProcessos" class="secondary-btn" type="button">Atualizar status</button>
+        </div>
+        <p>Estes são os status que o cliente verá no portal.</p>
+        <div id="processosCompartilhados"></div>
+      </section>
+
+      <section class="perfil-section">
+        <h2>Nova mensagem para o cliente</h2>
+        <textarea id="novaMensagem" placeholder="Escreva uma atualização para o cliente..."></textarea>
+        <button id="enviarMensagem" class="primary-btn" type="button">Enviar mensagem</button>
+        <p id="mensagemFeedback" class="form-feedback" aria-live="polite"></p>
+        <div id="mensagensEnviadas" class="mensagens-lista"></div>
+      </section>
+
+      <section class="perfil-section">
+        <h2>Documentos para o cliente</h2>
+        <label class="file-field">
+          <span>Anexar documento para o cliente</span>
+          <input id="arquivoAdvogado" type="file" accept="application/pdf,image/*,.doc,.docx">
+        </label>
+        <button id="enviarArquivoAdvogado" class="primary-btn" type="button">Disponibilizar documento</button>
+        <div id="arquivosAdvogado" class="arquivos-lista"></div>
+      </section>
+
+      <section class="perfil-section">
+        <h2>Documentos enviados pelo cliente</h2>
+        <div id="arquivosCliente" class="arquivos-lista"></div>
+      </section>
+    </section>
+  </main>
+  <script type="module" src="./js/portal-cliente-advogado.js"></script>
+</body>
+</html>

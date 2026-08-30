@@ -24,6 +24,7 @@ const salvarAnotacoesBtn = document.getElementById("salvarAnotacoes");
 const excluirClienteBtn = document.getElementById("excluirCliente");
 const processosCliente = document.getElementById("processosCliente");
 const compromissosCliente = document.getElementById("compromissosCliente");
+const gerenciarPortalCliente = document.getElementById("gerenciarPortalCliente");
 
 let clienteAtual = null;
 let usuarioAtual = null;
@@ -127,6 +128,7 @@ async function carregarCliente() {
   }
 
   tituloCliente.textContent = clienteAtual.nome;
+  gerenciarPortalCliente.href = `portal-cliente-advogado.html?id=${clienteId}`;
 
   registrarRecente({
     chave: `cliente:${clienteAtual.id}`,

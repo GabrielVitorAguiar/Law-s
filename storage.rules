@@ -2,8 +2,31 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
+    function portalValido(codigo) {
+      return firestore.exists(/databases/(default)/documents/portais_cliente/$(codigo))
+        && firestore.get(/databases/(default)/documents/portais_cliente/$(codigo)).data.codigo == codigo;
+    }
+
+    function advogadoDoPortal(codigo) {
+      return request.auth != null
+        && firestore.get(/databases/(default)/documents/portais_cliente/$(codigo)).data.advogadoId == request.auth.uid;
+    }
+
     match /usuarios/{userId}/{allPaths=**} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /portal_clientes/{codigo}/advogado/{allPaths=**} {
+      allow read: if portalValido(codigo);
+      allow write: if advogadoDoPortal(codigo);
+    }
+
+    match /portal_clientes/{codigo}/cliente/{arquivo} {
+      allow read: if portalValido(codigo);
+      allow create: if portalValido(codigo)
+        && request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType.matches('^(application|image)/.*$');
+      allow update, delete: if advogadoDoPortal(codigo);
     }
   }
 }
