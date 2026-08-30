@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="./css/styles.css">
 </head>
-<body>
+<body class="client-portal-page">
   <main class="portal-client-container">
     <section id="acessoPortal" class="modal portal-login-card">
       <h1>Área do cliente</h1>
@@ -20,24 +20,48 @@
       <a class="portal-voltar" href="login.html">Voltar</a>
     </section>
 
-    <section id="portalCliente" class="crud-container" hidden>
-      <div class="page-actions portal-top-actions">
-        <h1 id="boasVindasCliente">Área do cliente</h1>
-        <button id="sairPortal" class="secondary-btn" type="button">Sair</button>
+    <section id="portalCliente" class="crud-container client-portal-content" hidden>
+      <header class="portal-client-header">
+        <div class="portal-client-brand">
+          <span class="material-icons">account_balance</span>
+          <span>Law's</span>
+        </div>
+        <button id="sairPortal" class="portal-exit-btn" type="button">
+          <span class="material-icons">logout</span>
+          Sair
+        </button>
+      </header>
+
+      <div class="portal-client-welcome">
+        <div class="portal-welcome-icon"><span class="material-icons">waving_hand</span></div>
+        <div>
+          <p class="portal-eyebrow">PORTAL DO CLIENTE</p>
+          <h1 id="boasVindasCliente">Área do cliente</h1>
+          <p>Acompanhe seus processos, mensagens e documentos em um só lugar.</p>
+        </div>
       </div>
 
-      <section class="perfil-section">
-        <h2>Status dos processos</h2>
+      <section class="perfil-section portal-client-section">
+        <div class="portal-section-title">
+          <span class="material-icons">gavel</span>
+          <h2>Status dos processos</h2>
+        </div>
         <div id="processosClientePortal"></div>
       </section>
 
-      <section class="perfil-section">
-        <h2>Mensagens do advogado</h2>
+      <section class="perfil-section portal-client-section">
+        <div class="portal-section-title">
+          <span class="material-icons">forum</span>
+          <h2>Mensagens do advogado</h2>
+        </div>
         <div id="mensagensCliente" class="mensagens-lista"></div>
       </section>
 
-      <section class="perfil-section">
-        <h2>Documentos disponibilizados</h2>
+      <section class="perfil-section portal-client-section">
+        <div class="portal-section-title">
+          <span class="material-icons">folder_shared</span>
+          <h2>Documentos disponibilizados</h2>
+        </div>
         <button id="abrirDocumentosAdvogado" class="folder-btn" type="button">
           <span class="material-icons">folder</span>
           Abrir documentos
@@ -45,8 +69,11 @@
         <div id="documentosAdvogadoCliente" class="arquivos-lista" hidden></div>
       </section>
 
-      <section class="perfil-section">
-        <h2>Enviar documentos ao advogado</h2>
+      <section class="perfil-section portal-client-section portal-upload-section">
+        <div class="portal-section-title">
+          <span class="material-icons">upload_file</span>
+          <h2>Enviar documentos ao advogado</h2>
+        </div>
         <p>Envie arquivos de até 10 MB, como RG, PDF ou imagem.</p>
         <label class="file-field">
           <span>Selecionar documento</span>
