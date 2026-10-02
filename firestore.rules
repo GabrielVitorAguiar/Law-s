@@ -108,6 +108,10 @@ service cloud.firestore {
       allow update: if updatesOwnDocument();
     }
 
+    match /usuarios/{usuarioId} {
+      allow read, write: if signedIn() && request.auth.uid == usuarioId;
+    }
+
     // Mantido temporariamente para o CRUD legado. Será restringido na Parte 3.
     match /jurisprudencias/{documentoId} {
       allow create: if createsOwnDocument();

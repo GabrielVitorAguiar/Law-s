@@ -21,7 +21,7 @@ service firebase.storage {
       allow write: if advogadoDoPortal(codigo);
     }
 
-    match /portal_clientes/{codigo}/cliente/{arquivo} {
+    match /portal_clientes/{codigo}/cliente/{allPaths=**} {
       allow read: if portalValido(codigo);
       allow create: if portalValido(codigo)
         && request.resource.size < 10 * 1024 * 1024

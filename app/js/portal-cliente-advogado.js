@@ -40,6 +40,8 @@ const arquivoAdvogado = document.getElementById("arquivoAdvogado");
 const enviarArquivoAdvogadoBtn = document.getElementById("enviarArquivoAdvogado");
 const arquivosAdvogado = document.getElementById("arquivosAdvogado");
 const arquivosCliente = document.getElementById("arquivosCliente");
+const contextoProcesso = document.getElementById("contextoProcesso");
+const descricaoContexto = document.getElementById("descricaoContexto");
 
 let usuarioAtual;
 let clienteAtual;
@@ -53,6 +55,11 @@ copiarCodigoBtn.addEventListener("click", copiarCodigo);
 atualizarProcessosBtn.addEventListener("click", () => sincronizarProcessos(true));
 enviarMensagemBtn.addEventListener("click", enviarMensagem);
 enviarArquivoAdvogadoBtn.addEventListener("click", enviarArquivo);
+contextoProcesso.addEventListener("change", () => {
+  atualizarDescricaoContexto();
+  escutarMensagens();
+  carregarArquivos();
+});
 
 async function inicializar() {
   usuarioAtual = await obterUsuarioAtual();
@@ -127,6 +134,7 @@ async function sincronizarProcessos(mostrarFeedback) {
     });
     portalAtual.processos = processos;
     renderizarProcessos(processos);
+  preencherContextos(processos);
 
     if (mostrarFeedback) {
       codigoFeedback.textContent = "Status atualizado no portal do cliente.";
@@ -135,6 +143,30 @@ async function sincronizarProcessos(mostrarFeedback) {
     console.error("Não foi possível atualizar os processos compartilhados.", erro);
     if (mostrarFeedback) codigoFeedback.textContent = "Não foi possível atualizar os status.";
   }
+}
+
+function preencherContextos(processos = []) {
+  const selecionado = contextoProcesso.value || "geral";
+  contextoProcesso.innerHTML = '<option value="geral">Conversa geral</option>';
+  processos.forEach((processo) => {
+    const option = document.createElement("option");
+    option.value = processo.id;
+    option.textContent = `${processo.numero} — ${processo.status}`;
+    contextoProcesso.appendChild(option);
+  });
+  contextoProcesso.value = processos.some((processo) => processo.id === selecionado) ? selecionado : "geral";
+  atualizarDescricaoContexto();
+}
+
+function contextoAtual() {
+  return contextoProcesso.value || "geral";
+}
+
+function atualizarDescricaoContexto() {
+  const processo = portalAtual?.processos?.find((item) => item.id === contextoAtual());
+  descricaoContexto.textContent = processo
+    ? `Esta mensagem e os documentos serão vinculados ao processo ${processo.numero}.`
+    : "Esta mensagem e os documentos ficarão disponíveis na conversa geral.";
 }
 
 async function obterResumoProcessos() {
@@ -174,13 +206,16 @@ function escutarMensagens() {
   cancelarMensagens = onSnapshot(
     query(collection(db, "portais_cliente", portalAtual.codigo, "mensagens"), orderBy("dataEnvio", "desc")),
     (resultado) => {
-      if (resultado.empty) {
+      const mensagens = resultado.docs
+        .map((item) => item.data())
+        .filter((mensagem) => (mensagem.processoId || "geral") === contextoAtual());
+
+      if (mensagens.length === 0) {
         mensagensEnviadas.innerHTML = "<p class=\"empty-state\">Nenhuma mensagem enviada ao cliente.</p>";
         return;
       }
 
-      mensagensEnviadas.innerHTML = resultado.docs.map((item) => {
-        const mensagem = item.data();
+      mensagensEnviadas.innerHTML = mensagens.map((mensagem) => {
         return `
           <article class="mensagem-card">
             <p>${escapeHTML(mensagem.texto)}</p>
@@ -201,6 +236,7 @@ async function enviarMensagem() {
   try {
     await addDoc(collection(db, "portais_cliente", portalAtual.codigo, "mensagens"), {
       texto,
+      processoId: contextoAtual() === "geral" ? null : contextoAtual(),
       dataEnvio: serverTimestamp()
     });
     novaMensagem.value = "";
@@ -219,7 +255,7 @@ async function enviarArquivo() {
 
   enviarArquivoAdvogadoBtn.disabled = true;
   try {
-    const caminho = `portal_clientes/${portalAtual.codigo}/advogado/${Date.now()}-${normalizarNomeArquivo(arquivo.name)}`;
+    const caminho = `portal_clientes/${portalAtual.codigo}/advogado/${contextoAtual()}/${Date.now()}-${normalizarNomeArquivo(arquivo.name)}`;
     await uploadBytes(ref(storage, caminho), arquivo);
     arquivoAdvogado.value = "";
     await carregarArquivos();
@@ -239,7 +275,7 @@ async function carregarArquivos() {
 }
 
 async function renderizarArquivos(tipo, destino, permitirExcluir) {
-  const pasta = ref(storage, `portal_clientes/${portalAtual.codigo}/${tipo}`);
+  const pasta = ref(storage, `portal_clientes/${portalAtual.codigo}/${tipo}/${contextoAtual()}`);
   const resultado = await listAll(pasta);
 
   if (resultado.items.length === 0) {

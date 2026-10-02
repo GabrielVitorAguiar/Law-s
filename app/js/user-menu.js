@@ -40,12 +40,6 @@ logoutBtn.addEventListener("click", async () => {
   }
 });
 
-document.querySelectorAll(".coming-soon").forEach((botao) => {
-  botao.addEventListener("click", () => {
-    alert("Esta área estará disponível em breve.");
-  });
-});
-
 onAuthStateChanged(auth, (usuario) => {
   if (!usuario) return;
 

@@ -28,6 +28,14 @@
     </section>
 
     <section id="conteudoPortal" hidden>
+      <section class="perfil-section portal-context-section">
+        <h2>Contexto do conteúdo</h2>
+        <p>Escolha em qual processo as mensagens e documentos ficarão disponíveis. Use conversa geral para conteúdos sem processo.</p>
+        <select id="contextoProcesso" aria-label="Selecionar processo ou conversa geral">
+          <option value="geral">Conversa geral</option>
+        </select>
+      </section>
+
       <section class="perfil-section">
         <div class="section-heading">
           <h2>Status dos processos</h2>
@@ -39,6 +47,7 @@
 
       <section class="perfil-section">
         <h2>Nova mensagem para o cliente</h2>
+        <p id="descricaoContexto">Esta mensagem será enviada na conversa geral.</p>
         <textarea id="novaMensagem" placeholder="Escreva uma atualização para o cliente..."></textarea>
         <button id="enviarMensagem" class="primary-btn" type="button">Enviar mensagem</button>
         <p id="mensagemFeedback" class="form-feedback" aria-live="polite"></p>

@@ -8,9 +8,9 @@
   <link rel="stylesheet" href="./css/styles.css">
 </head>
 
-<body>
+<body class="processos-page">
 
-  <div class="crud-container">
+  <div class="crud-container processos-shell">
 
     <div class="page-actions">
       <a class="home-btn icon-btn" href="index.html" aria-label="Voltar para a home">
@@ -32,52 +32,49 @@
       <div id="listaNotificacoes"></div>
     </section>
 
-    <h1>Processos</h1>
+    <header class="processos-hero">
+      <div>
+        <p>GESTÃO JURÍDICA</p>
+        <h1>Processos</h1>
+        <span>Organize informações, acompanhe movimentações e centralize documentos.</span>
+      </div>
+      <span class="material-icons processos-hero-icon">folder_special</span>
+    </header>
 
     <div class="clientes-toolbar" id="processosToolbar">
-      <input
-        type="text"
-        id="pesquisa"
-        placeholder="Pesquisar por número, cliente, área, status, descrição..."
-      >
+      <label class="process-search-field">
+        <span class="material-icons">search</span>
+        <input type="text" id="pesquisa" placeholder="Buscar processo, cliente, área ou status">
+      </label>
 
       <button type="button" id="novoProcessoBtn" class="primary-btn">
+        <span class="material-icons">add</span>
         Adicionar processo
       </button>
     </div>
 
-    <form id="processoForm" hidden>
+    <form id="processoForm" class="processos-form-card" hidden>
+      <div class="processos-form-heading"><span class="material-icons">edit_note</span><div><h2>Dados do processo</h2><p>Preencha os dados essenciais para manter o histórico organizado.</p></div></div>
 
-      <input
-        type="text"
-        id="numero"
-        placeholder="Número do processo"
-        required
-      >
+      <div class="processos-form-grid">
+        <label>Número do processo
+          <input type="text" id="numero" placeholder="Número do processo" required>
+        </label>
 
-      <select id="clienteId" required>
-        <option value="">Selecione o cliente</option>
-      </select>
+        <label>Cliente
+          <select id="clienteId" required><option value="">Selecione o cliente</option></select>
+        </label>
 
-      <input
-        type="text"
-        id="area"
-        placeholder="Área"
-        required
-      >
+        <label>Área
+          <input type="text" id="area" placeholder="Ex.: Trabalhista" required>
+        </label>
 
-      <input
-        type="text"
-        id="status"
-        placeholder="Status"
-        required
-      >
+        <label>Status
+          <input type="text" id="status" placeholder="Ex.: Em andamento" required>
+        </label>
+      </div>
 
-      <textarea
-        id="descricao"
-        placeholder="Descrição"
-        required
-      ></textarea>
+      <label>Descrição<textarea id="descricao" placeholder="Adicione um resumo ou informações relevantes" required></textarea></label>
 
       <label class="file-field">
         <span>Anexo do processo (.pdf, .doc ou .docx)</span>
@@ -90,13 +87,7 @@
 
       <div id="arquivoAtual" class="arquivo-atual"></div>
 
-      <button type="submit">
-        Salvar
-      </button>
-
-      <button type="button" id="cancelarEdicao" class="secondary-btn">
-        Cancelar
-      </button>
+      <div class="processos-form-actions"><button type="button" id="cancelarEdicao" class="secondary-btn">Cancelar</button><button type="submit" class="primary-btn"><span class="material-icons">save</span>Salvar processo</button></div>
 
     </form>
 

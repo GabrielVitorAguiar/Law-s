@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu perfil - Law's</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body class="advogado-profile-page">
+  <main class="profile-layout">
+    <aside class="profile-sidebar">
+      <a class="profile-brand" href="index.html"><span class="material-icons">account_balance</span>Law's</a>
+      <a href="#perfil"><span class="material-icons">person</span>Meu perfil</a>
+      <a href="#configuracoes"><span class="material-icons">settings</span>Configurações</a>
+      <a href="index.html"><span class="material-icons">arrow_back</span>Voltar ao início</a>
+    </aside>
+    <section class="profile-main">
+      <header><p>MINHA CONTA</p><h1>Perfil e configurações</h1><span id="profileEmail"></span></header>
+      <form id="perfilAdvogadoForm" class="profile-card" autocomplete="on">
+        <div class="profile-card-title"><span class="material-icons">badge</span><div><h2 id="perfil">Dados profissionais</h2><p>Informações usadas na sua área administrativa.</p></div></div>
+        <div class="profile-fields">
+          <label>Nome completo<input id="nome" type="text" required></label>
+          <label>Telefone<input id="telefone" type="tel" placeholder="(00) 00000-0000"></label>
+          <label>OAB<input id="oab" type="text" placeholder="Ex.: OAB/RS 00000"></label>
+          <label>Escritório<input id="escritorio" type="text" placeholder="Nome do escritório"></label>
+          <label class="profile-field-full">E-mail da conta<input id="email" type="email" disabled></label>
+        </div>
+        <button class="profile-save-btn" type="submit"><span class="material-icons">save</span>Salvar perfil</button>
+        <p id="perfilFeedback" class="profile-feedback" aria-live="polite"></p>
+      </form>
+      <form id="configuracoes" class="profile-card">
+        <div class="profile-card-title"><span class="material-icons">tune</span><div><h2>Preferências</h2><p>Personalize como o Law's se comporta para você.</p></div></div>
+        <label class="preference-row"><span><strong>Notificações de processos</strong><small>Receba alertas de movimentações monitoradas.</small></span><input id="notificacoesAtivas" type="checkbox"></label>
+        <label class="preference-row"><span><strong>Lembretes da agenda</strong><small>Exiba lembretes dos próximos compromissos.</small></span><input id="lembretesAtivos" type="checkbox"></label>
+        <button class="profile-save-btn" type="submit"><span class="material-icons">save</span>Salvar preferências</button>
+        <p id="configFeedback" class="profile-feedback" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+  <script type="module" src="./js/perfil-advogado.js"></script>
+</body>
+</html>
