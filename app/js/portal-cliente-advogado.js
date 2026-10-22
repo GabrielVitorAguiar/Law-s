@@ -16,6 +16,7 @@ import {
 import {
   deleteObject,
   getBlob,
+  getMetadata,
   listAll,
   ref,
   uploadBytes
@@ -42,6 +43,7 @@ const arquivosAdvogado = document.getElementById("arquivosAdvogado");
 const arquivosCliente = document.getElementById("arquivosCliente");
 const contextoProcesso = document.getElementById("contextoProcesso");
 const descricaoContexto = document.getElementById("descricaoContexto");
+const historicoArquivos = document.getElementById("historicoArquivos");
 
 let usuarioAtual;
 let clienteAtual;
@@ -270,7 +272,8 @@ async function enviarArquivo() {
 async function carregarArquivos() {
   await Promise.all([
     renderizarArquivos("advogado", arquivosAdvogado, true),
-    renderizarArquivos("cliente", arquivosCliente, true)
+    renderizarArquivos("cliente", arquivosCliente, true),
+    carregarHistoricoArquivos()
   ]);
 }
 
@@ -283,11 +286,12 @@ async function renderizarArquivos(tipo, destino, permitirExcluir) {
     return;
   }
 
+  const arquivos = await Promise.all(resultado.items.map((arquivo) => detalhesArquivo(arquivo)));
   destino.innerHTML = "";
-  resultado.items.forEach((arquivo) => {
+  arquivos.forEach(({ arquivo, timestamp }) => {
     const item = document.createElement("div");
     item.className = "arquivo-item";
-    item.innerHTML = `<span>${escapeHTML(nomeExibicao(arquivo.name))}</span>`;
+    item.innerHTML = `<div><strong>${escapeHTML(nomeExibicao(arquivo.name))}</strong><small>Enviado em ${escapeHTML(formatarDataArquivo(timestamp))}</small></div>`;
 
     const baixar = document.createElement("button");
     baixar.type = "button";
@@ -309,6 +313,35 @@ async function renderizarArquivos(tipo, destino, permitirExcluir) {
     }
 
     destino.appendChild(item);
+  });
+}
+
+async function carregarHistoricoArquivos() {
+  const base = `portal_clientes/${portalAtual.codigo}`;
+  const [enviadosPeloAdvogado, enviadosPeloCliente] = await Promise.all([
+    listAll(ref(storage, `${base}/advogado/${contextoAtual()}`)),
+    listAll(ref(storage, `${base}/cliente/${contextoAtual()}`))
+  ]);
+
+  const itens = await Promise.all([
+    ...enviadosPeloAdvogado.items.map((arquivo) => detalhesArquivo(arquivo, "Advogado")),
+    ...enviadosPeloCliente.items.map((arquivo) => detalhesArquivo(arquivo, "Cliente"))
+  ]);
+  itens.sort((a, b) => b.timestamp - a.timestamp);
+
+  historicoArquivos.innerHTML = itens.length ? "" : "<p class=\"empty-state\">Nenhum arquivo compartilhado neste contexto.</p>";
+
+  itens.forEach(({ arquivo, origem, timestamp }) => {
+    const item = document.createElement("article");
+    item.className = "file-history-item";
+    item.innerHTML = `<span class="material-icons">${origem === "Advogado" ? "upload_file" : "attach_file"}</span><div><strong>${escapeHTML(nomeExibicao(arquivo.name))}</strong><small>${origem} · ${escapeHTML(formatarDataArquivo(timestamp))}</small></div>`;
+    const baixar = document.createElement("button");
+    baixar.type = "button";
+    baixar.className = "secondary-btn";
+    baixar.textContent = "Baixar";
+    baixar.addEventListener("click", () => baixarArquivo(arquivo));
+    item.appendChild(baixar);
+    historicoArquivos.appendChild(item);
   });
 }
 
@@ -343,6 +376,23 @@ function normalizarNomeArquivo(nome) {
 
 function nomeExibicao(nome) {
   return nome.replace(/^\d+-/, "");
+}
+
+async function detalhesArquivo(arquivo, origem = "") {
+  let timestamp = dataArquivo(arquivo.name);
+  if (!timestamp) {
+    try { timestamp = Date.parse((await getMetadata(arquivo)).timeCreated) || 0; } catch { /* mantém a lista disponível se o metadado falhar */ }
+  }
+  return { arquivo, origem, timestamp };
+}
+
+function dataArquivo(nome) {
+  const timestamp = Number(String(nome).split("-")[0]);
+  return Number.isFinite(timestamp) ? timestamp : 0;
+}
+
+function formatarDataArquivo(timestamp) {
+  return timestamp ? new Date(timestamp).toLocaleString("pt-BR") : "data não informada";
 }
 
 function formatarData(data) {

@@ -3,94 +3,66 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calendário</title>
+  <title>Agenda</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="./css/styles.css">
 </head>
 
-<body>
+<body class="agenda-page">
+  <main class="crud-container calendario-container">
+    <header class="agenda-hero">
+      <div>
+        <a class="home-btn icon-btn" href="index.html" aria-label="Voltar para a página inicial"><span class="material-icons">arrow_back</span></a>
+        <p class="agenda-eyebrow">ORGANIZAÇÃO DO ESCRITÓRIO</p>
+        <h1>Sua agenda</h1>
+        <span>Escolha um dia para ver ou organizar seus compromissos.</span>
+      </div>
+      <button type="button" id="irParaHoje" class="secondary-btn"><span class="material-icons">today</span> Hoje</button>
+    </header>
 
-  <div class="crud-container calendario-container">
+    <section class="agenda-calendar-card" aria-label="Calendário mensal">
+      <div class="calendario-header">
+        <button type="button" id="mesAnterior" class="icon-btn home-btn" aria-label="Mês anterior"><span class="material-icons">chevron_left</span></button>
+        <h2 id="mesAtual" aria-live="polite"></h2>
+        <button type="button" id="mesProximo" class="icon-btn home-btn" aria-label="Próximo mês"><span class="material-icons">chevron_right</span></button>
+      </div>
+      <div class="agenda-legend" aria-label="Legenda"><span><i class="legend-dot"></i> Possui compromisso</span><span><i class="legend-today"></i> Hoje</span></div>
+      <div class="calendario-grid" id="calendarioGrid"></div>
+    </section>
 
-    <a class="home-btn icon-btn" href="index.html" aria-label="Voltar para a home">
-      <span class="material-icons">home</span>
-    </a>
+    <section class="agenda-day-panel" aria-labelledby="tituloDiaSelecionado">
+      <div class="agenda-day-heading">
+        <div>
+          <p class="agenda-eyebrow">DIA SELECIONADO</p>
+          <h2 id="tituloDiaSelecionado"></h2>
+          <p id="resumoDia" class="agenda-day-summary"></p>
+        </div>
+        <button id="abrirFormulario" class="primary-btn" type="button"><span class="material-icons">add</span> Adicionar à agenda</button>
+      </div>
 
-    <h1>Calendário</h1>
-
-    <div class="calendario-header">
-      <button type="button" id="mesAnterior" class="icon-btn home-btn" aria-label="Mês anterior">
-        <span class="material-icons">chevron_left</span>
-      </button>
-
-      <h2 id="mesAtual"></h2>
-
-      <button type="button" id="mesProximo" class="icon-btn home-btn" aria-label="Próximo mês">
-        <span class="material-icons">chevron_right</span>
-      </button>
-    </div>
-
-    <div class="calendario-grid" id="calendarioGrid"></div>
-
-    <section class="perfil-section">
-      <h2 id="tituloDiaSelecionado">Novo registro</h2>
-
-      <form id="agendaForm">
-
-        <input
-          type="text"
-          id="titulo"
-          placeholder="Título"
-          required
-        >
-
-        <select id="tipo" required>
-          <option value="compromisso">Compromisso</option>
-          <option value="lembrete">Lembrete</option>
-          <option value="anotacao">Anotação</option>
-        </select>
-
-        <select id="clienteId">
-          <option value="">Sem cliente vinculado</option>
-        </select>
-
-        <input
-          type="date"
-          id="data"
-          required
-        >
-
-        <input
-          type="time"
-          id="hora"
-          required
-        >
-
-        <textarea
-          id="descricao"
-          placeholder="Detalhes"
-          required
-        ></textarea>
-
-        <button type="submit">
-          Salvar
-        </button>
-
-        <button type="button" id="cancelarEdicao" class="secondary-btn" hidden>
-          Cancelar edição
-        </button>
-
+      <form id="agendaForm" class="agenda-form" hidden>
+        <div class="agenda-form-heading"><h3 id="tituloFormulario">Novo compromisso</h3><button type="button" id="fecharFormulario" class="icon-btn" aria-label="Fechar formulário"><span class="material-icons">close</span></button></div>
+        <div class="agenda-form-grid">
+          <label class="agenda-field agenda-field-wide">Título<input type="text" id="titulo" placeholder="Ex.: Reunião de alinhamento" autocomplete="off" required></label>
+          <label class="agenda-field">Horário<input type="time" id="hora" required></label>
+          <label class="agenda-field">Tipo<select id="tipo"><option value="compromisso">Compromisso</option><option value="lembrete">Lembrete</option><option value="anotacao">Anotação</option></select></label>
+          <label class="agenda-field agenda-field-wide">Cliente <span class="optional-label">opcional</span><select id="clienteId"><option value="">Sem cliente vinculado</option></select></label>
+        </div>
+        <details class="agenda-details"><summary>Adicionar detalhes</summary><label class="agenda-field"><textarea id="descricao" placeholder="Anotações úteis para este compromisso"></textarea></label></details>
+        <div class="agenda-form-actions"><button type="button" id="cancelarEdicao" class="secondary-btn" hidden>Cancelar edição</button><button type="submit" class="primary-btn"><span class="material-icons">check</span><span id="textoSalvar">Salvar compromisso</span></button></div>
+        <p id="agendaFeedback" class="form-feedback" aria-live="polite"></p>
       </form>
+
+      <div id="eventosDoDia" class="agenda-day-events"></div>
     </section>
 
-    <section class="perfil-section">
-      <h2>Próximos registros</h2>
-      <div id="listaEventos"></div>
+    <section class="perfil-section agenda-upcoming-panel">
+      <div class="section-heading"><div><p class="agenda-eyebrow">PRÓXIMOS DIAS</p><h2>Próximos compromissos</h2></div></div>
+      <div id="listaEventos" class="agenda-upcoming-list"></div>
     </section>
+  </main>
 
-  </div>
-
-  <script type="module" src="js/agenda.js"></script>
-
+  <script type="module" src="./js/theme.js"></script>
+  <script type="module" src="./js/agenda.js"></script>
 </body>
 </html>

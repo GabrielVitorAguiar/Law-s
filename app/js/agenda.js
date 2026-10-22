@@ -1,453 +1,284 @@
 import { db } from "./firebase.js";
-
-import {
-  collection,
-  addDoc,
-  getDocs,
-  doc,
-  updateDoc,
-  deleteDoc,
-  query,
-  where
-} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
-
+import { addDoc, collection, deleteDoc, doc, getDocs, onSnapshot, query, serverTimestamp, updateDoc, where } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 import { obterUsuarioAtual } from "./auth-user.js";
 
 const form = document.getElementById("agendaForm");
-const lista = document.getElementById("listaEventos");
 const calendarioGrid = document.getElementById("calendarioGrid");
 const mesAtualTitulo = document.getElementById("mesAtual");
-const mesAnteriorBtn = document.getElementById("mesAnterior");
-const mesProximoBtn = document.getElementById("mesProximo");
 const tituloDiaSelecionado = document.getElementById("tituloDiaSelecionado");
-const cancelarEdicaoBtn = document.getElementById("cancelarEdicao");
+const resumoDia = document.getElementById("resumoDia");
+const eventosDoDia = document.getElementById("eventosDoDia");
+const lista = document.getElementById("listaEventos");
 const clienteSelect = document.getElementById("clienteId");
-const dataInput = document.getElementById("data");
+const feedback = document.getElementById("agendaFeedback");
+const tituloFormulario = document.getElementById("tituloFormulario");
+const textoSalvar = document.getElementById("textoSalvar");
+const tituloInput = document.getElementById("titulo");
+const horaInput = document.getElementById("hora");
+const tipoInput = document.getElementById("tipo");
+const descricaoInput = document.getElementById("descricao");
+const cancelarEdicaoBtn = document.getElementById("cancelarEdicao");
 
 let eventos = [];
 let clientes = [];
+let usuarioAtual = null;
 let editandoId = null;
 let dataSelecionada = dataParaInput(new Date());
-let dataCalendario = new Date();
-let usuarioAtual = null;
+let dataCalendario = inicioDoMes(new Date());
+let pararEventos = null;
 
-mesAnteriorBtn.addEventListener("click", () => {
-
-  dataCalendario = new Date(dataCalendario.getFullYear(), dataCalendario.getMonth() - 1, 1);
-  renderizarCalendario();
-
-});
-
-mesProximoBtn.addEventListener("click", () => {
-
-  dataCalendario = new Date(dataCalendario.getFullYear(), dataCalendario.getMonth() + 1, 1);
-  renderizarCalendario();
-
-});
-
-form.addEventListener("submit", async (e) => {
-
-  e.preventDefault();
-
-  const clienteSelecionado = clientes.find((cliente) => cliente.id === clienteSelect.value);
-
-  const dados = {
-    userId: usuarioAtual.uid,
-    titulo: document.getElementById("titulo").value.trim(),
-    tipo: document.getElementById("tipo").value,
-    clienteId: clienteSelect.value,
-    cliente: clienteSelecionado?.nome || "",
-    data: document.getElementById("data").value,
-    hora: document.getElementById("hora").value,
-    descricao: document.getElementById("descricao").value.trim()
-  };
-
-  try {
-
-    if (editandoId) {
-
-      await updateDoc(doc(db, "calendario", editandoId), dados);
-
-    } else {
-
-      await addDoc(collection(db, "calendario"), {
-        ...dados,
-        criadoEm: new Date()
-      });
-
-    }
-
-    form.reset();
-    limparEdicao();
-    dataSelecionada = dados.data;
-    document.getElementById("data").value = dataSelecionada;
-    carregarEventos();
-
-  } catch (error) {
-
-    console.error(error);
-
-  }
-
-});
-
-dataInput.addEventListener("change", () => {
-
-  if (!dataInput.value) return;
-
-  dataSelecionada = dataInput.value;
-  const [ano, mes] = dataSelecionada.split("-");
-  dataCalendario = new Date(Number(ano), Number(mes) - 1, 1);
-  renderizarCalendario();
-  renderizarEventosProximos();
-
-});
-
-cancelarEdicaoBtn.addEventListener("click", () => {
-
-  form.reset();
-  limparEdicao();
-  dataInput.value = dataSelecionada;
-
-});
+document.getElementById("mesAnterior").addEventListener("click", () => mudarMes(-1));
+document.getElementById("mesProximo").addEventListener("click", () => mudarMes(1));
+document.getElementById("irParaHoje").addEventListener("click", irParaHoje);
+document.getElementById("abrirFormulario").addEventListener("click", () => abrirFormulario());
+document.getElementById("fecharFormulario").addEventListener("click", fecharFormulario);
+cancelarEdicaoBtn.addEventListener("click", fecharFormulario);
+form.addEventListener("submit", salvarEvento);
 
 async function inicializar() {
-
   usuarioAtual = await obterUsuarioAtual();
-  dataInput.value = dataSelecionada;
   await carregarClientes();
-  await carregarEventos();
-
+  observarEventos();
 }
 
 async function carregarClientes() {
-
-  clientes = [];
-
-  const querySnapshot = await getDocs(
-    query(collection(db, "clientes"), where("userId", "==", usuarioAtual.uid))
-  );
-
-  querySnapshot.forEach((documento) => {
-
-    clientes.push({
-      id: documento.id,
-      ...documento.data()
-    });
-
-  });
-
-  clientes.sort((a, b) => valorTexto(a.nome).localeCompare(valorTexto(b.nome), "pt-BR"));
-  renderizarClientesNoSelect();
-
-}
-
-function renderizarClientesNoSelect() {
-
-  clienteSelect.innerHTML = `<option value="">Sem cliente vinculado</option>`;
-
+  const resultado = await getDocs(query(collection(db, "clientes"), where("userId", "==", usuarioAtual.uid)));
+  clientes = resultado.docs.map((item) => ({ id: item.id, ...item.data() })).sort((a, b) => texto(a.nome).localeCompare(texto(b.nome), "pt-BR"));
+  clienteSelect.innerHTML = '<option value="">Sem cliente vinculado</option>';
   clientes.forEach((cliente) => {
-
-    const option = document.createElement("option");
-
-    option.value = cliente.id;
-    option.textContent = cliente.nome;
-
-    clienteSelect.appendChild(option);
-
+    const opcao = document.createElement("option");
+    opcao.value = cliente.id;
+    opcao.textContent = cliente.nome;
+    clienteSelect.appendChild(opcao);
   });
-
 }
 
-async function carregarEventos() {
-
-  lista.innerHTML = "";
-  eventos = [];
-
-  const querySnapshot = await getDocs(
-    query(collection(db, "calendario"), where("userId", "==", usuarioAtual.uid))
-  );
-
-  querySnapshot.forEach((documento) => {
-
-    eventos.push({
-      id: documento.id,
-      ...documento.data()
-    });
-
+function observarEventos() {
+  pararEventos?.();
+  pararEventos = onSnapshot(query(collection(db, "calendario"), where("userId", "==", usuarioAtual.uid)), (resultado) => {
+    eventos = resultado.docs.map((item) => ({ id: item.id, ...item.data() })).sort((a, b) => dataHora(a).localeCompare(dataHora(b)));
+    renderizarTudo();
+  }, (erro) => {
+    console.error(erro);
+    feedback.textContent = "Não foi possível atualizar a agenda agora.";
   });
+}
 
-  eventos.sort((a, b) => dataHora(a).localeCompare(dataHora(b)));
-
+function mudarMes(deslocamento) {
+  dataCalendario = new Date(dataCalendario.getFullYear(), dataCalendario.getMonth() + deslocamento, 1);
   renderizarCalendario();
-  renderizarEventosProximos();
+}
 
+function irParaHoje() {
+  const hoje = new Date();
+  dataSelecionada = dataParaInput(hoje);
+  dataCalendario = inicioDoMes(hoje);
+  fecharFormulario();
+  renderizarTudo();
+}
+
+function renderizarTudo() {
+  renderizarCalendario();
+  renderizarDiaSelecionado();
+  renderizarProximos();
 }
 
 function renderizarCalendario() {
-
   calendarioGrid.innerHTML = "";
-
-  const nomesDias = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-
-  nomesDias.forEach((dia) => {
-
-    const div = document.createElement("div");
-
-    div.classList.add("calendario-dia-semana");
-    div.textContent = dia;
-
-    calendarioGrid.appendChild(div);
-
+  ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].forEach((nome) => {
+    const cabecalho = document.createElement("div");
+    cabecalho.className = "calendario-dia-semana";
+    cabecalho.textContent = nome;
+    calendarioGrid.appendChild(cabecalho);
   });
 
   const ano = dataCalendario.getFullYear();
   const mes = dataCalendario.getMonth();
   const primeiroDia = new Date(ano, mes, 1);
   const ultimoDia = new Date(ano, mes + 1, 0);
+  mesAtualTitulo.textContent = primeiroDia.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
 
-  mesAtualTitulo.textContent = primeiroDia.toLocaleDateString("pt-BR", {
-    month: "long",
-    year: "numeric"
-  });
-
-  for (let i = 0; i < primeiroDia.getDay(); i += 1) {
-    calendarioGrid.appendChild(criarCelulaVazia());
-  }
+  for (let indice = 0; indice < primeiroDia.getDay(); indice += 1) calendarioGrid.appendChild(criarCelulaVazia());
 
   for (let dia = 1; dia <= ultimoDia.getDate(); dia += 1) {
-
     const data = dataParaInput(new Date(ano, mes, dia));
     const eventosDoDia = eventos.filter((evento) => evento.data === data);
-    const button = document.createElement("button");
+    const botao = document.createElement("button");
+    botao.type = "button";
+    botao.className = "calendario-dia";
+    botao.classList.toggle("selecionado", data === dataSelecionada);
+    botao.classList.toggle("com-eventos", eventosDoDia.length > 0);
+    botao.classList.toggle("hoje", data === dataParaInput(new Date()));
+    botao.setAttribute("aria-label", `${dia} de ${mesAtualTitulo.textContent}${eventosDoDia.length ? `, ${eventosDoDia.length} compromisso${eventosDoDia.length > 1 ? "s" : ""}` : ""}`);
 
-    button.type = "button";
-    button.classList.add("calendario-dia");
-    button.classList.toggle("selecionado", data === dataSelecionada);
-    button.classList.toggle("com-eventos", eventosDoDia.length > 0);
-
-    button.innerHTML = `
-      <span>${dia}</span>
-      ${eventosDoDia.length > 0 ? `<small>${eventosDoDia.length}</small>` : ""}
-    `;
-
-    button.addEventListener("click", () => selecionarData(data));
-
-    calendarioGrid.appendChild(button);
-
+    const numero = document.createElement("strong");
+    numero.textContent = dia;
+    botao.appendChild(numero);
+    if (eventosDoDia.length) {
+      const marcador = document.createElement("div");
+      marcador.className = "calendar-event-preview";
+      eventosDoDia.slice(0, 2).forEach((evento) => {
+        const ponto = document.createElement("i");
+        ponto.title = evento.titulo || "Compromisso";
+        marcador.appendChild(ponto);
+      });
+      if (eventosDoDia.length > 2) {
+        const total = document.createElement("small");
+        total.textContent = `+${eventosDoDia.length - 2}`;
+        marcador.appendChild(total);
+      }
+      botao.appendChild(marcador);
+    }
+    botao.addEventListener("click", () => selecionarData(data));
+    calendarioGrid.appendChild(botao);
   }
-
-  atualizarTituloDia();
-
 }
 
-function criarCelulaVazia() {
+function renderizarDiaSelecionado() {
+  const registros = eventos.filter((evento) => evento.data === dataSelecionada);
+  tituloDiaSelecionado.textContent = formatarDataLonga(dataSelecionada);
+  resumoDia.textContent = registros.length ? `${registros.length} ${registros.length === 1 ? "compromisso marcado" : "compromissos marcados"}` : "Nenhum compromisso para este dia.";
+  eventosDoDia.innerHTML = "";
 
-  const div = document.createElement("div");
+  if (!registros.length) {
+    eventosDoDia.innerHTML = '<div class="agenda-empty-day"><span class="material-icons">event_available</span><p>Seu dia está livre. Use “Adicionar à agenda” para registrar algo.</p></div>';
+    return;
+  }
+  registros.forEach((evento) => eventosDoDia.appendChild(criarCartaoEvento(evento, true)));
+}
 
-  div.classList.add("calendario-vazio");
+function renderizarProximos() {
+  const agora = `${dataParaInput(new Date())} ${horarioAtual()}`;
+  const proximos = eventos.filter((evento) => dataHora(evento) >= agora).slice(0, 6);
+  lista.innerHTML = "";
+  if (!proximos.length) {
+    lista.innerHTML = '<p class="empty-state">Nenhum compromisso futuro cadastrado.</p>';
+    return;
+  }
+  proximos.forEach((evento) => {
+    const cartao = criarCartaoEvento(evento, false);
+    cartao.classList.add("agenda-upcoming-item");
+    cartao.addEventListener("click", (eventoClique) => {
+      if (eventoClique.target.closest("button")) return;
+      selecionarData(evento.data);
+      document.querySelector(".agenda-day-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    lista.appendChild(cartao);
+  });
+}
 
-  return div;
+function criarCartaoEvento(evento, mostrarData) {
+  const cartao = document.createElement("article");
+  cartao.className = "agenda-event-card";
+  const cabecalho = document.createElement("div");
+  cabecalho.className = "agenda-event-main";
+  cabecalho.innerHTML = `<span class="agenda-type-icon material-icons">${iconeTipo(evento.tipo)}</span><div><span class="agenda-event-time">${escapeHTML(evento.hora || "Sem horário")}${mostrarData ? "" : ` · ${formatarDataCurta(evento.data)}`}</span><h3>${escapeHTML(evento.titulo || "Sem título")}</h3><p>${escapeHTML(rotuloTipo(evento.tipo))}${nomeClienteDoEvento(evento) ? ` · ${escapeHTML(nomeClienteDoEvento(evento))}` : ""}</p>${evento.descricao ? `<small>${escapeHTML(evento.descricao)}</small>` : ""}</div>`;
+  const acoes = document.createElement("div");
+  acoes.className = "agenda-event-actions";
+  acoes.appendChild(botaoAcao("edit", "Editar", () => editarEvento(evento)));
+  acoes.appendChild(botaoAcao("delete", "Excluir", () => excluirEvento(evento.id)));
+  cartao.append(cabecalho, acoes);
+  return cartao;
+}
 
+function botaoAcao(icone, rotulo, acao) {
+  const botao = document.createElement("button");
+  botao.type = "button";
+  botao.className = icone === "delete" ? "agenda-delete-btn" : "agenda-edit-btn";
+  botao.setAttribute("aria-label", rotulo);
+  botao.innerHTML = `<span class="material-icons">${icone}</span>`;
+  botao.addEventListener("click", acao);
+  return botao;
 }
 
 function selecionarData(data) {
-
   dataSelecionada = data;
-  dataInput.value = data;
-  limparEdicao();
-  renderizarCalendario();
-  renderizarEventosProximos();
-
+  dataCalendario = inicioDoMesDeTexto(data);
+  fecharFormulario();
+  renderizarTudo();
 }
 
-function renderizarEventosProximos() {
-
-  lista.innerHTML = "";
-
-  const proximos = eventos
-    .filter((evento) => dataHora(evento) >= `${dataSelecionada} 00:00`)
-    .slice(0, 8);
-
-  if (proximos.length === 0) {
-
-    lista.innerHTML = `<p class="empty-state">Nenhum registro próximo desta data.</p>`;
-    return;
-
+function abrirFormulario(evento = null) {
+  form.hidden = false;
+  feedback.textContent = "";
+  if (!evento) {
+    editandoId = null;
+    form.reset();
+    horaInput.value = "09:00";
+    tituloFormulario.textContent = "Novo compromisso";
+    textoSalvar.textContent = "Salvar compromisso";
+    cancelarEdicaoBtn.hidden = true;
   }
+  tituloInput.focus();
+}
 
-  proximos.forEach((evento) => {
-
-    const div = document.createElement("div");
-
-    div.classList.add("registro-card");
-
-    div.innerHTML = `
-
-      <h3>${escapeHTML(evento.titulo)}</h3>
-
-      <p><strong>Tipo:</strong> ${escapeHTML(rotuloTipo(evento.tipo))}</p>
-
-      <p><strong>Data:</strong> ${formatarData(evento.data)} às ${escapeHTML(evento.hora)}</p>
-
-      ${nomeClienteDoEvento(evento) ? `<p><strong>Cliente:</strong> ${escapeHTML(nomeClienteDoEvento(evento))}</p>` : ""}
-
-      <p>${escapeHTML(evento.descricao)}</p>
-
-      <div class="acoes">
-
-        <button class="editar-btn" type="button">
-          Editar
-        </button>
-
-        <button class="deletar-btn" type="button">
-          Excluir
-        </button>
-
-      </div>
-
-    `;
-
-    div.querySelector(".editar-btn")
-      .addEventListener("click", () => editarEvento(evento));
-
-    div.querySelector(".deletar-btn")
-      .addEventListener("click", () => excluirEvento(evento.id));
-
-    lista.appendChild(div);
-
-  });
-
+function fecharFormulario() {
+  editandoId = null;
+  form.reset();
+  form.hidden = true;
+  cancelarEdicaoBtn.hidden = true;
+  feedback.textContent = "";
 }
 
 function editarEvento(evento) {
-
-  document.getElementById("titulo").value = evento.titulo || "";
-  document.getElementById("tipo").value = evento.tipo || "compromisso";
-  clienteSelect.value = evento.clienteId || clienteIdPorNome(evento.cliente) || "";
-  dataInput.value = evento.data || dataSelecionada;
-  document.getElementById("hora").value = evento.hora || "";
-  document.getElementById("descricao").value = evento.descricao || "";
-
-  editandoId = evento.id;
   dataSelecionada = evento.data || dataSelecionada;
+  dataCalendario = inicioDoMesDeTexto(dataSelecionada);
+  editandoId = evento.id;
+  tituloInput.value = evento.titulo || "";
+  horaInput.value = evento.hora || "09:00";
+  tipoInput.value = evento.tipo || "compromisso";
+  clienteSelect.value = evento.clienteId || clienteIdPorNome(evento.cliente);
+  descricaoInput.value = evento.descricao || "";
+  tituloFormulario.textContent = "Editar compromisso";
+  textoSalvar.textContent = "Salvar alterações";
   cancelarEdicaoBtn.hidden = false;
-  renderizarCalendario();
-  atualizarTituloDia();
+  form.hidden = false;
+  renderizarTudo();
+  form.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  tituloInput.focus();
+}
 
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-
+async function salvarEvento(evento) {
+  evento.preventDefault();
+  const cliente = clientes.find((item) => item.id === clienteSelect.value);
+  const dados = {
+    userId: usuarioAtual.uid,
+    titulo: tituloInput.value.trim(),
+    tipo: tipoInput.value,
+    clienteId: clienteSelect.value,
+    cliente: cliente?.nome || "",
+    data: dataSelecionada,
+    hora: horaInput.value,
+    descricao: descricaoInput.value.trim()
+  };
+  try {
+    if (editandoId) await updateDoc(doc(db, "calendario", editandoId), dados);
+    else await addDoc(collection(db, "calendario"), { ...dados, criadoEm: serverTimestamp() });
+    fecharFormulario();
+  } catch (erro) {
+    console.error(erro);
+    feedback.textContent = "Não foi possível salvar o compromisso.";
+  }
 }
 
 async function excluirEvento(id) {
-
-  const confirmar = confirm("Deseja realmente excluir este registro do calendário?");
-
-  if (!confirmar) return;
-
-  try {
-
-    await deleteDoc(doc(db, "calendario", id));
-    carregarEventos();
-
-  } catch (error) {
-
-    console.error(error);
-
-  }
-
+  if (!confirm("Excluir este compromisso da agenda?")) return;
+  try { await deleteDoc(doc(db, "calendario", id)); } catch (erro) { console.error(erro); feedback.textContent = "Não foi possível excluir o compromisso."; }
 }
 
-function limparEdicao() {
-
-  editandoId = null;
-  cancelarEdicaoBtn.hidden = true;
-  atualizarTituloDia();
-
-}
-
-function atualizarTituloDia() {
-
-  tituloDiaSelecionado.textContent = `Registro para ${formatarData(dataSelecionada)}`;
-
-}
-
-function nomeClienteDoEvento(evento) {
-
-  const cliente = clientes.find((item) => item.id === evento.clienteId);
-
-  return cliente?.nome || evento.cliente || "";
-
-}
-
-function clienteIdPorNome(nome = "") {
-
-  const nomeNormalizado = valorTexto(nome);
-  const cliente = clientes.find((item) => valorTexto(item.nome) === nomeNormalizado);
-
-  return cliente?.id || "";
-
-}
-
-function rotuloTipo(tipo = "") {
-
-  const tipos = {
-    compromisso: "Compromisso",
-    lembrete: "Lembrete",
-    anotacao: "Anotação"
-  };
-
-  return tipos[tipo] || "Registro";
-
-}
-
-function dataHora(evento) {
-
-  return `${evento.data || ""} ${evento.hora || "00:00"}`;
-
-}
-
-function dataParaInput(data) {
-
-  const ano = data.getFullYear();
-  const mes = String(data.getMonth() + 1).padStart(2, "0");
-  const dia = String(data.getDate()).padStart(2, "0");
-
-  return `${ano}-${mes}-${dia}`;
-
-}
-
-function formatarData(data) {
-
-  if (!data) return "";
-
-  const [ano, mes, dia] = data.split("-");
-
-  return `${dia}/${mes}/${ano}`;
-
-}
-
-function valorTexto(valor = "") {
-
-  return String(valor)
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-
-}
-
-function escapeHTML(valor = "") {
-
-  return String(valor)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-
-}
+function criarCelulaVazia() { const celula = document.createElement("div"); celula.className = "calendario-vazio"; return celula; }
+function inicioDoMes(data) { return new Date(data.getFullYear(), data.getMonth(), 1); }
+function inicioDoMesDeTexto(data) { const [ano, mes] = data.split("-"); return new Date(Number(ano), Number(mes) - 1, 1); }
+function dataParaInput(data) { return `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, "0")}-${String(data.getDate()).padStart(2, "0")}`; }
+function horarioAtual() { const agora = new Date(); return `${String(agora.getHours()).padStart(2, "0")}:${String(agora.getMinutes()).padStart(2, "0")}`; }
+function dataHora(evento) { return `${evento.data || ""} ${evento.hora || "00:00"}`; }
+function formatarDataCurta(data) { return new Date(`${data}T12:00:00`).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" }); }
+function formatarDataLonga(data) { return new Date(`${data}T12:00:00`).toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" }); }
+function nomeClienteDoEvento(evento) { return clientes.find((cliente) => cliente.id === evento.clienteId)?.nome || evento.cliente || ""; }
+function clienteIdPorNome(nome = "") { return clientes.find((cliente) => texto(cliente.nome) === texto(nome))?.id || ""; }
+function rotuloTipo(tipo) { return ({ compromisso: "Compromisso", lembrete: "Lembrete", anotacao: "Anotação" })[tipo] || "Registro"; }
+function iconeTipo(tipo) { return ({ compromisso: "event", lembrete: "notifications", anotacao: "sticky_note_2" })[tipo] || "event_note"; }
+function texto(valor = "") { return String(valor).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); }
+function escapeHTML(valor = "") { return String(valor).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;"); }
 
 inicializar();

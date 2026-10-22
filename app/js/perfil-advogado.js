@@ -1,12 +1,14 @@
 import { auth, db } from "./firebase.js";
 import { doc, getDoc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+import { aplicarTema, temaAtual } from "./theme.js";
 
 const perfilForm = document.getElementById("perfilAdvogadoForm");
 const configForm = document.getElementById("configuracoes");
 const profileEmail = document.getElementById("profileEmail");
 const perfilFeedback = document.getElementById("perfilFeedback");
 const configFeedback = document.getElementById("configFeedback");
+const temaEscuro = document.getElementById("temaEscuro");
 let usuario;
 
 onAuthStateChanged(auth, async (atual) => {
@@ -15,6 +17,7 @@ onAuthStateChanged(auth, async (atual) => {
   profileEmail.textContent = atual.email || "";
   document.getElementById("nome").value = atual.displayName || "";
   document.getElementById("email").value = atual.email || "";
+  temaEscuro.checked = temaAtual();
   const salvo = await getDoc(doc(db, "usuarios", atual.uid));
   if (salvo.exists()) preencher(salvo.data());
 });
@@ -34,10 +37,13 @@ configForm.addEventListener("submit", async (evento) => {
   await salvar({
     preferencias: {
       notificacoesAtivas: document.getElementById("notificacoesAtivas").checked,
-      lembretesAtivos: document.getElementById("lembretesAtivos").checked
+      lembretesAtivos: document.getElementById("lembretesAtivos").checked,
+      temaEscuro: temaEscuro.checked
     }
   }, configFeedback, "Preferências atualizadas.");
 });
+
+temaEscuro.addEventListener("change", () => aplicarTema(temaEscuro.checked));
 
 function preencher(dados) {
   document.getElementById("nome").value = dados.nome || document.getElementById("nome").value;
@@ -46,6 +52,8 @@ function preencher(dados) {
   document.getElementById("escritorio").value = dados.escritorio || "";
   document.getElementById("notificacoesAtivas").checked = dados.preferencias?.notificacoesAtivas ?? true;
   document.getElementById("lembretesAtivos").checked = dados.preferencias?.lembretesAtivos ?? true;
+  temaEscuro.checked = dados.preferencias?.temaEscuro ?? temaAtual();
+  aplicarTema(temaEscuro.checked);
 }
 
 async function salvar(dados, feedback, sucesso) {

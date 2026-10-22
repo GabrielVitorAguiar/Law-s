@@ -1069,6 +1069,59 @@ textarea {
 
 @media (max-width: 700px) { .portal-process-grid,.profile-fields,.processos-form-grid { grid-template-columns: 1fr; }.profile-layout { grid-template-columns: 1fr; }.profile-sidebar { flex-direction: row; overflow-x: auto; padding: 14px; }.profile-brand { margin: 0 12px 0 0; }.profile-sidebar a:not(.profile-brand) { white-space: nowrap; }.profile-main { width: min(100% - 32px, 900px); padding: 32px 0; }.client-portal-page .portal-client-header { margin-bottom: 26px; }.client-portal-page .portal-client-brand { display: none; }.client-portal-page .portal-client-header { justify-content: space-between; }.processos-page { background: #f4f6fa; }.processos-page .processos-shell { padding-top: 14px; }.processos-hero { padding: 24px; margin: 0 -24px 20px; background: #101827; }.processos-hero h1 { font-size: 31px; }.processos-hero-icon { display: none; }.processos-page .clientes-toolbar { align-items: stretch; }.processos-form-card { padding: 18px; } }
 
+/* ---------- SISTEMA VISUAL GLOBAL ---------- */
+:root { --surface: #ffffff; --surface-soft: #f7f9fc; --page: #f3f6fb; --text: #172033; --muted: #667085; --border: #e2e8f2; --brand: #0866ff; --brand-soft: #e9f1ff; --danger: #d92d20; --shadow: 0 10px 28px rgba(16, 24, 40, 0.08); }
+body { background: var(--page); color: var(--text); font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.45; }
+body:not(.client-portal-page):not(.advogado-profile-page) { min-height: 100vh; background: radial-gradient(circle at top right, rgba(8,102,255,.09), transparent 31rem), var(--page); }
+body:not(.client-portal-page):not(.advogado-profile-page) .crud-container { max-width: 1050px; padding-top: 44px; }
+body:not(.client-portal-page):not(.advogado-profile-page) h1 { color: var(--text); font-size: clamp(28px, 4vw, 36px); letter-spacing: -1px; }
+body:not(.client-portal-page):not(.advogado-profile-page) h2, body:not(.client-portal-page):not(.advogado-profile-page) h3 { color: var(--text); }
+body:not(.client-portal-page):not(.advogado-profile-page) input, body:not(.client-portal-page):not(.advogado-profile-page) select, body:not(.client-portal-page):not(.advogado-profile-page) textarea { border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text); }
+body:not(.client-portal-page):not(.advogado-profile-page) input:focus, body:not(.client-portal-page):not(.advogado-profile-page) select:focus, body:not(.client-portal-page):not(.advogado-profile-page) textarea:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(8,102,255,.13); outline: none; }
+body:not(.client-portal-page):not(.advogado-profile-page) .home-btn, body:not(.client-portal-page):not(.advogado-profile-page) .secondary-btn { border: 1px solid var(--border); background: var(--surface); color: #344054; }
+body:not(.client-portal-page):not(.advogado-profile-page) .home-btn:hover, body:not(.client-portal-page):not(.advogado-profile-page) .secondary-btn:hover { border-color: #a7c8ff; background: var(--brand-soft); color: var(--brand); }
+body:not(.client-portal-page):not(.advogado-profile-page) .primary-btn { border-radius: 10px; background: var(--brand); color: white; box-shadow: 0 6px 14px rgba(8,102,255,.17); }
+body:not(.client-portal-page):not(.advogado-profile-page) .primary-btn:hover { background: #005ee9; transform: translateY(-1px); }
+body:not(.client-portal-page):not(.advogado-profile-page) .registro-card, body:not(.client-portal-page):not(.advogado-profile-page) .cliente-card, body:not(.client-portal-page):not(.advogado-profile-page) .juris-card, body:not(.client-portal-page):not(.advogado-profile-page) .perfil-section, body:not(.client-portal-page):not(.advogado-profile-page) .cliente-form { border: 1px solid var(--border); border-radius: 16px; background: var(--surface); box-shadow: var(--shadow); }
+body:not(.client-portal-page):not(.advogado-profile-page) .registro-card { color: var(--text); } body:not(.client-portal-page):not(.advogado-profile-page) .registro-card p { color: var(--muted); }
+body:not(.client-portal-page):not(.advogado-profile-page) .clientes-toolbar { padding: 11px; border: 1px solid var(--border); border-radius: 15px; background: var(--surface); box-shadow: var(--shadow); }
+body:not(.client-portal-page):not(.advogado-profile-page) .cliente-list-item, body:not(.client-portal-page):not(.advogado-profile-page) .processo-link { border: 1px solid var(--border); background: var(--surface); color: var(--text); box-shadow: 0 4px 12px rgba(16,24,40,.04); }
+body:not(.client-portal-page):not(.advogado-profile-page) .cliente-list-item:hover, body:not(.client-portal-page):not(.advogado-profile-page) .processo-link:hover { border-color: #a7c8ff; background: #f8fbff; }
+body:not(.client-portal-page):not(.advogado-profile-page) .cliente-list-item span, body:not(.client-portal-page):not(.advogado-profile-page) .processo-link span, body:not(.client-portal-page):not(.advogado-profile-page) .empty-state { color: var(--muted); }
+body:not(.client-portal-page):not(.advogado-profile-page) .file-field { border: 1px dashed #9cc1ff; background: #f7faff; color: #344054; }
+body:not(.client-portal-page):not(.advogado-profile-page) .arquivo-link { background: var(--brand-soft); color: var(--brand); }
+body:not(.client-portal-page):not(.advogado-profile-page) .alfabeto-nav { border: 1px solid var(--border); background: rgba(255,255,255,.94); box-shadow: var(--shadow); }
+body:not(.client-portal-page):not(.advogado-profile-page) .alfabeto-nav button { color: var(--muted); }
+body:not(.client-portal-page):not(.advogado-profile-page) .calendario-dia { border-color: var(--border); background: var(--surface); color: var(--text); }
+body:not(.client-portal-page):not(.advogado-profile-page) .calendario-dia:hover, body:not(.client-portal-page):not(.advogado-profile-page) .calendario-dia.selecionado { border-color: var(--brand); background: #f5f9ff; }
+body:not(.client-portal-page):not(.advogado-profile-page) .calendario-dia.com-eventos small { background: var(--brand); color: white; }
+body:not(.client-portal-page):not(.advogado-profile-page) .recente-card { border: 1px solid var(--border); background: var(--surface); color: var(--text); box-shadow: 0 5px 16px rgba(16,24,40,.05); }
+body:not(.client-portal-page):not(.advogado-profile-page) .recente-card:hover { border-color: #a7c8ff; background: #f8fbff; }
+body:not(.client-portal-page):not(.advogado-profile-page) .recente-card strong { color: var(--text); }.recente-card small { color: var(--muted); }
+
+/* Login e menu principal em tema claro */
+body:has(.overlay) { background: linear-gradient(145deg, #eef5ff, #f8fbff 50%, #edf3ff); }
+.overlay { background: rgba(238,244,255,.7); }.modal { border-color: #e1e8f4; background: rgba(255,255,255,.94); color: var(--text); box-shadow: 0 20px 50px rgba(16,24,40,.14); }.modal p { color: var(--muted); }.google-btn { border: 1px solid var(--border); background: white; color: var(--text); }.google-btn:hover { border-color: #a7c8ff; background: #f7faff; }.client-access-btn { background: var(--brand); color: white; box-shadow: 0 6px 14px rgba(8,102,255,.18); }
+.menu-item { border: 1px solid var(--border); background: var(--surface); color: var(--text); box-shadow: var(--shadow); }.menu-item:hover { border-color: #a7c8ff; background: #f7faff; }.menu-item span { color: var(--brand); }.menu-item .menu-label { color: var(--text); }
+.user-menu-trigger { border-color: var(--border); background: rgba(255,255,255,.94); color: var(--brand); box-shadow: var(--shadow); }.user-menu-panel { border-color: var(--border); background: rgba(255,255,255,.98); color: var(--text); }.user-menu-heading > .material-icons,.user-menu-option .material-icons { color: var(--brand); }.user-menu-heading small { color: var(--muted); }.user-menu-option { color: var(--text); }.user-menu-divider { background: var(--border); }
+
+/* Histórico de arquivos */
+.arquivo-item > div, .file-history-item > div { min-width: 0; flex: 1; }.arquivo-item strong, .arquivo-item small, .file-history-item strong, .file-history-item small { display: block; }.arquivo-item small, .file-history-item small { margin-top: 4px; color: var(--muted); font-size: 12px; }.file-history-list { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }.file-history-item { display: flex; align-items: center; gap: 12px; padding: 13px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-soft); }.file-history-item > .material-icons { padding: 8px; border-radius: 9px; background: var(--brand-soft); color: var(--brand); }.file-history-item .secondary-btn { margin-left: auto; }
+
+/* Tema escuro */
+body.theme-dark { --surface: #182230; --surface-soft: #202d3d; --page: #0e1622; --text: #f5f8ff; --muted: #aab6c8; --border: #2d3d52; --brand: #78a9ff; --brand-soft: #19365f; --shadow: 0 10px 28px rgba(0,0,0,.24); background: var(--page); color: var(--text); }
+body.theme-dark:not(.client-portal-page):not(.advogado-profile-page), body.theme-dark.client-portal-page { background: radial-gradient(circle at top right, rgba(120,169,255,.14), transparent 31rem), var(--page); }
+body.theme-dark:not(.client-portal-page):not(.advogado-profile-page) .crud-container h1, body.theme-dark:not(.client-portal-page):not(.advogado-profile-page) h2, body.theme-dark:not(.client-portal-page):not(.advogado-profile-page) h3 { color: var(--text); }
+body.theme-dark input, body.theme-dark select, body.theme-dark textarea { border-color: var(--border) !important; background: #111b29 !important; color: var(--text) !important; }
+body.theme-dark .modal, body.theme-dark .user-menu-panel, body.theme-dark .user-menu-trigger, body.theme-dark .menu-item, body.theme-dark .registro-card, body.theme-dark .cliente-card, body.theme-dark .juris-card, body.theme-dark .perfil-section, body.theme-dark .cliente-form, body.theme-dark .clientes-toolbar, body.theme-dark .cliente-list-item, body.theme-dark .processo-link, body.theme-dark .recente-card, body.theme-dark .calendario-dia, body.theme-dark .portal-client-section, body.theme-dark .portal-login-card, body.theme-dark .portal-process-card, body.theme-dark .arquivo-item, body.theme-dark .file-history-item { border-color: var(--border) !important; background: var(--surface) !important; color: var(--text) !important; }
+body.theme-dark .modal p, body.theme-dark .registro-card p, body.theme-dark .portal-section-description, body.theme-dark .portal-client-welcome > div:last-child > p:last-child, body.theme-dark .cliente-list-item span, body.theme-dark .processo-link span, body.theme-dark .arquivo-item small, body.theme-dark .file-history-item small { color: var(--muted) !important; }
+body.theme-dark .home-btn, body.theme-dark .secondary-btn, body.theme-dark .portal-exit-btn, body.theme-dark .profile-sidebar { border-color: var(--border); background: var(--surface); color: var(--text); }
+body.theme-dark .portal-client-welcome h1, body.theme-dark .portal-section-title h2, body.theme-dark .registro-card h3, body.theme-dark .portal-process-card-content strong { color: var(--text); }
+body.theme-dark .client-portal-page .mensagem-card { background: #162b4a; }.theme-dark .advogado-profile-page, body.theme-dark.advogado-profile-page { background: var(--page); }.theme-dark .profile-main header h1, .theme-dark .profile-card h2 { color: var(--text); }.theme-dark .profile-card { border-color: var(--border); background: var(--surface); }.theme-dark .profile-sidebar { background: #101923; }.theme-dark .profile-fields label { color: var(--text); }
+body.theme-dark .processos-page { background: var(--page); }.theme-dark .processos-page .clientes-toolbar, .theme-dark .processos-form-card, .theme-dark .processos-page #listaProcessos .registro-card, .theme-dark .processos-page .notification-panel { border-color: var(--border); background: var(--surface); color: var(--text); }
+
+@media (max-width: 640px) { .file-history-item { align-items: flex-start; flex-wrap: wrap; }.file-history-item .secondary-btn { margin-left: 44px; }.client-portal-page .portal-login-card { margin-top: 22px; padding: 26px; }.processos-page .clientes-toolbar { padding: 8px; } }
+
 .perfil-section textarea {
   width: 100%;
   box-sizing: border-box;
@@ -1395,3 +1448,70 @@ textarea {
 .carousel-btn:hover {
   background: #3a3a3a;
 }
+
+/* Ajustes finais: a experiência padrão é sempre clara e consistente. */
+body:not(.theme-dark).processos-page {
+  background: radial-gradient(circle at top right, rgba(8,102,255,.1), transparent 31rem), var(--page);
+}
+
+body:not(.theme-dark) .processos-hero {
+  padding: 28px;
+  border: 1px solid #dfe8f7;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #ffffff, #eef5ff);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+body:not(.theme-dark) .processos-hero p { color: var(--brand); }
+body:not(.theme-dark) .processos-hero span:not(.material-icons) { color: var(--muted); }
+body:not(.theme-dark) .processos-hero-icon {
+  border-color: #cce0ff;
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+body:not(.theme-dark).advogado-profile-page { background: var(--page); }
+body:not(.theme-dark) .profile-sidebar {
+  border-right: 1px solid var(--border);
+  background: rgba(255,255,255,.92);
+  color: var(--text);
+}
+
+body:not(.theme-dark) .profile-brand { color: var(--text); }
+body:not(.theme-dark) .profile-sidebar a:not(.profile-brand) { color: #475467; }
+body:not(.theme-dark) .profile-sidebar a:not(.profile-brand):hover {
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+body:not(.theme-dark) .profile-sidebar a:not(.profile-brand):hover .material-icons { color: var(--brand); }
+
+/* ---------- AGENDA INTERATIVA ---------- */
+.agenda-page .calendario-container { max-width: 1120px; padding-bottom: 64px; }
+.agenda-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 26px; }
+.agenda-hero .home-btn { margin-bottom: 26px; }
+.agenda-eyebrow { margin: 0 0 6px; color: var(--brand); font-size: 11px; font-weight: 800; letter-spacing: 1.1px; }
+.agenda-hero h1 { margin: 0; }
+.agenda-hero > div > span { display: block; margin-top: 7px; color: var(--muted); }
+.agenda-hero .secondary-btn,.agenda-day-heading .primary-btn,.agenda-form-actions .primary-btn { display: inline-flex; align-items: center; gap: 7px; }
+.agenda-calendar-card,.agenda-day-panel { border: 1px solid var(--border); border-radius: 20px; background: var(--surface); box-shadow: var(--shadow); }
+.agenda-calendar-card { padding: 20px; }
+.agenda-page .calendario-header { justify-content: space-between; margin: 0; padding: 0 0 15px; }
+.agenda-page .calendario-header h2 { min-width: 0; margin: 0; font-size: 20px; text-transform: capitalize; }
+.agenda-legend { display: flex; gap: 18px; margin-bottom: 16px; color: var(--muted); font-size: 12px; }
+.agenda-legend span { display: inline-flex; align-items: center; gap: 6px; }.agenda-legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }.legend-dot { background: var(--brand); }.legend-today { border: 2px solid var(--brand); background: transparent; }
+.agenda-page .calendario-grid { gap: 8px; }
+.agenda-page .calendario-dia-semana { padding: 5px; color: var(--muted); font-size: 12px; }
+.agenda-page .calendario-dia,.agenda-page .calendario-vazio { min-height: 86px; }
+.agenda-page .calendario-dia { position: relative; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; padding: 10px; border: 1px solid transparent; border-radius: 13px; background: var(--surface-soft); color: var(--text); }
+.agenda-page .calendario-dia:hover { border-color: #aac9ff; background: #f1f6ff; transform: translateY(-1px); }
+.agenda-page .calendario-dia.selecionado { border-color: var(--brand); background: var(--brand-soft); box-shadow: inset 0 0 0 1px var(--brand); }
+.agenda-page .calendario-dia.hoje > strong { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: var(--brand); color: white; }
+.calendar-event-preview { display: flex; align-items: center; gap: 4px; }.calendar-event-preview i { width: 7px; height: 7px; border-radius: 50%; background: var(--brand); }.calendar-event-preview small { margin-left: 2px; color: var(--brand); font-size: 11px; font-weight: 800; }
+.agenda-day-panel { margin-top: 22px; padding: 26px; }.agenda-day-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }.agenda-day-heading h2 { margin: 0; font-size: 22px; text-transform: capitalize; }.agenda-day-summary { margin: 6px 0 0; color: var(--muted); }
+.agenda-form { margin: 22px 0; padding: 20px; border: 1px solid #cfe0ff; border-radius: 15px; background: #f7faff; }.agenda-form-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }.agenda-form-heading h3 { margin: 0; }.agenda-form-heading .icon-btn { border: 0; background: transparent; color: var(--muted); cursor: pointer; }.agenda-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }.agenda-field { display: flex; flex-direction: column; gap: 6px; color: #344054; font-size: 13px; font-weight: 700; }.agenda-field input,.agenda-field select,.agenda-field textarea { width: 100%; box-sizing: border-box; margin: 0; }.agenda-field textarea { min-height: 90px; resize: vertical; }.agenda-field-wide { grid-column: 1 / -1; }.optional-label { color: var(--muted); font-weight: 500; }.agenda-details { margin-top: 14px; }.agenda-details summary { color: var(--brand); cursor: pointer; font-size: 13px; font-weight: 700; }.agenda-details .agenda-field { margin-top: 12px; }.agenda-form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+.agenda-day-events,.agenda-upcoming-list { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }.agenda-empty-day { display: flex; align-items: center; gap: 11px; padding: 19px; border-radius: 13px; background: var(--surface-soft); color: var(--muted); }.agenda-empty-day p { margin: 0; }.agenda-empty-day .material-icons { color: var(--brand); }
+.agenda-event-card { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 15px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }.agenda-event-main { display: flex; align-items: flex-start; gap: 12px; min-width: 0; }.agenda-type-icon { flex: 0 0 auto; padding: 9px; border-radius: 10px; background: var(--brand-soft); color: var(--brand); }.agenda-event-time { color: var(--brand); font-size: 12px; font-weight: 800; }.agenda-event-card h3 { margin: 3px 0 2px; font-size: 16px; }.agenda-event-card p,.agenda-event-card small { display: block; margin: 0; color: var(--muted); font-size: 13px; }.agenda-event-card small { margin-top: 6px; }.agenda-event-actions { display: flex; gap: 6px; }.agenda-event-actions button { display: inline-flex; align-items: center; justify-content: center; width: 35px; height: 35px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); cursor: pointer; }.agenda-edit-btn { color: var(--brand); }.agenda-delete-btn { color: var(--danger); }.agenda-edit-btn:hover { border-color: #a7c8ff; background: var(--brand-soft); }.agenda-delete-btn:hover { border-color: #f2b8b5; background: #fff3f2; }.agenda-upcoming-panel { margin-top: 22px; }.agenda-upcoming-item { cursor: pointer; }.agenda-upcoming-item:hover { border-color: #a7c8ff; box-shadow: 0 5px 15px rgba(8,102,255,.08); }
+body.theme-dark .agenda-calendar-card,body.theme-dark .agenda-day-panel,body.theme-dark .agenda-event-card { border-color: var(--border); background: var(--surface); }.theme-dark .agenda-page .calendario-dia { background: var(--surface-soft); color: var(--text); }.theme-dark .agenda-page .calendario-dia:hover { background: #253a58; }.theme-dark .agenda-page .calendario-dia.selecionado,.theme-dark .agenda-form { background: #1a3458; }.theme-dark .agenda-field { color: var(--text); }.theme-dark .agenda-delete-btn:hover { background: #442426; }
+@media (max-width: 640px) { .agenda-hero,.agenda-day-heading { align-items: flex-start; flex-direction: column; }.agenda-hero .home-btn { margin-bottom: 16px; }.agenda-hero .secondary-btn,.agenda-day-heading .primary-btn { width: 100%; justify-content: center; }.agenda-calendar-card,.agenda-day-panel { padding: 16px; border-radius: 16px; }.agenda-page .calendario-grid { gap: 4px; }.agenda-page .calendario-dia,.agenda-page .calendario-vazio { min-height: 58px; }.agenda-page .calendario-dia { padding: 7px; border-radius: 9px; }.agenda-page .calendario-dia.hoje > strong { width: 22px; height: 22px; }.agenda-form-grid { grid-template-columns: 1fr; }.agenda-field-wide { grid-column: auto; }.agenda-event-card { align-items: flex-start; }.agenda-event-actions { flex-direction: column; }.agenda-form-actions { flex-direction: column-reverse; }.agenda-form-actions button { justify-content: center; } }

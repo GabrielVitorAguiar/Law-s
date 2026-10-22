@@ -32,11 +32,13 @@
         <div class="profile-card-title"><span class="material-icons">tune</span><div><h2>Preferências</h2><p>Personalize como o Law's se comporta para você.</p></div></div>
         <label class="preference-row"><span><strong>Notificações de processos</strong><small>Receba alertas de movimentações monitoradas.</small></span><input id="notificacoesAtivas" type="checkbox"></label>
         <label class="preference-row"><span><strong>Lembretes da agenda</strong><small>Exiba lembretes dos próximos compromissos.</small></span><input id="lembretesAtivos" type="checkbox"></label>
+        <label class="preference-row"><span><strong>Perfil escuro</strong><small>Use tons escuros em todo o sistema neste dispositivo.</small></span><input id="temaEscuro" type="checkbox" role="switch"></label>
         <button class="profile-save-btn" type="submit"><span class="material-icons">save</span>Salvar preferências</button>
         <p id="configFeedback" class="profile-feedback" aria-live="polite"></p>
       </form>
     </section>
   </main>
+  <script type="module" src="./js/theme.js"></script>
   <script type="module" src="./js/perfil-advogado.js"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 import { db, storage } from "./firebase.js";
 import { collection, doc, getDoc, onSnapshot, orderBy, query } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
-import { getBlob, listAll, ref, uploadBytes } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js";
+import { getBlob, getMetadata, listAll, ref, uploadBytes } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js";
 
 const codigo = sessionStorage.getItem("portalClienteCodigo");
 const processoId = new URLSearchParams(window.location.search).get("processo");
@@ -20,6 +20,7 @@ const arquivoCliente = document.getElementById("arquivoCliente");
 const enviarArquivoCliente = document.getElementById("enviarArquivoCliente");
 const arquivoClienteFeedback = document.getElementById("arquivoClienteFeedback");
 const documentosEnviadosCliente = document.getElementById("documentosEnviadosCliente");
+const historicoArquivos = document.getElementById("historicoArquivos");
 
 let cancelarMensagens = null;
 
@@ -41,6 +42,7 @@ async function inicializar() {
     renderizarContexto(processo);
     escutarMensagens();
     listarArquivos("cliente", documentosEnviadosCliente);
+    carregarHistoricoArquivos();
   } catch (erro) {
     console.error(erro);
     sessionStorage.removeItem("portalClienteCodigo");
@@ -80,24 +82,57 @@ async function enviarArquivo() {
     arquivoCliente.value = "";
     arquivoClienteFeedback.textContent = "Documento enviado ao advogado.";
     await listarArquivos("cliente", documentosEnviadosCliente);
+    await carregarHistoricoArquivos();
   } catch (erro) { arquivoClienteFeedback.textContent = "Não foi possível enviar o documento."; } finally { enviarArquivoCliente.disabled = false; }
 }
 
 async function listarArquivos(tipo, destino) {
   try {
     const resultado = await listAll(ref(storage, `portal_clientes/${codigo}/${tipo}/${contexto}`));
-    destino.innerHTML = resultado.items.length ? "" : "<p class=\"empty-state\">Nenhum documento nesta pasta.</p>";
-    resultado.items.forEach((arquivo) => {
-      const item = document.createElement("div"); item.className = "arquivo-item"; item.innerHTML = `<span>${escapeHTML(nomeExibicao(arquivo.name))}</span>`;
+    const arquivos = await Promise.all(resultado.items.map((arquivo) => detalhesArquivo(arquivo)));
+    destino.innerHTML = arquivos.length ? "" : "<p class=\"empty-state\">Nenhum documento nesta pasta.</p>";
+    arquivos.forEach(({ arquivo, timestamp }) => {
+      const item = document.createElement("div"); item.className = "arquivo-item"; item.innerHTML = `<div><strong>${escapeHTML(nomeExibicao(arquivo.name))}</strong><small>Enviado em ${escapeHTML(formatarDataArquivo(timestamp))}</small></div>`;
       const baixar = document.createElement("button"); baixar.type = "button"; baixar.className = "secondary-btn"; baixar.textContent = "Baixar"; baixar.onclick = () => baixarArquivo(arquivo);
       item.appendChild(baixar); destino.appendChild(item);
     });
   } catch { destino.innerHTML = "<p class=\"empty-state\">Não foi possível carregar os documentos.</p>"; }
 }
 
+async function carregarHistoricoArquivos() {
+  try {
+    const base = `portal_clientes/${codigo}`;
+    const [enviadosPeloAdvogado, enviadosPeloCliente] = await Promise.all([
+      listAll(ref(storage, `${base}/advogado/${contexto}`)),
+      listAll(ref(storage, `${base}/cliente/${contexto}`))
+    ]);
+    const itens = await Promise.all([
+      ...enviadosPeloAdvogado.items.map((arquivo) => detalhesArquivo(arquivo, "Advogado")),
+      ...enviadosPeloCliente.items.map((arquivo) => detalhesArquivo(arquivo, "Cliente"))
+    ]);
+    itens.sort((a, b) => b.timestamp - a.timestamp);
+    historicoArquivos.innerHTML = itens.length ? "" : "<p class=\"empty-state\">Nenhum arquivo compartilhado neste contexto.</p>";
+    itens.forEach(({ arquivo, origem, timestamp }) => {
+      const item = document.createElement("article"); item.className = "file-history-item";
+      item.innerHTML = `<span class="material-icons">${origem === "Advogado" ? "upload_file" : "attach_file"}</span><div><strong>${escapeHTML(nomeExibicao(arquivo.name))}</strong><small>${origem} · ${escapeHTML(formatarDataArquivo(timestamp))}</small></div>`;
+      const baixar = document.createElement("button"); baixar.type = "button"; baixar.className = "secondary-btn"; baixar.textContent = "Baixar"; baixar.onclick = () => baixarArquivo(arquivo);
+      item.appendChild(baixar); historicoArquivos.appendChild(item);
+    });
+  } catch { historicoArquivos.innerHTML = "<p class=\"empty-state\">Não foi possível carregar o histórico de arquivos.</p>"; }
+}
+
 async function baixarArquivo(arquivo) { const blob = await getBlob(arquivo); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = nomeExibicao(arquivo.name); link.click(); URL.revokeObjectURL(link.href); }
 function normalizarNomeArquivo(nome) { return String(nome).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9.-]/g, "-"); }
 function nomeExibicao(nome) { return nome.replace(/^\d+-/, ""); }
+async function detalhesArquivo(arquivo, origem = "") {
+  let timestamp = dataArquivo(arquivo.name);
+  if (!timestamp) {
+    try { timestamp = Date.parse((await getMetadata(arquivo)).timeCreated) || 0; } catch { /* mantém a interface utilizável se o metadado falhar */ }
+  }
+  return { arquivo, origem, timestamp };
+}
+function dataArquivo(nome) { const timestamp = Number(String(nome).split("-")[0]); return Number.isFinite(timestamp) ? timestamp : 0; }
+function formatarDataArquivo(timestamp) { return timestamp ? new Date(timestamp).toLocaleString("pt-BR") : "data não informada"; }
 function formatarData(data) { const valor = data?.toDate ? data.toDate() : new Date(data); return Number.isNaN(valor.getTime()) ? "Enviada agora" : valor.toLocaleString("pt-BR"); }
 function escapeHTML(valor = "") { return String(valor).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;"); }
 inicializar();
