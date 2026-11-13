@@ -1,111 +1,78 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Law's</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="./css/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Organize clientes, processos e compromissos do seu escritório em um só lugar com Law's.">
+  <meta name="theme-color" content="#ffffff">
+  <title>Law's — sua rotina jurídica em ordem</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="./css/styles.css">
 </head>
-<body>
+<body class="landing-page">
+  <header class="landing-header">
+    <a class="landing-brand" href="#inicio" aria-label="Law's, início"><span class="brand-mark"><span></span><span></span><span></span></span><span>Law<span class="brand-apostrophe">’</span>s</span></a>
+    <nav class="landing-nav" aria-label="Navegação principal">
+      <a href="#solucoes">Como ajuda</a><a href="#como-funciona">Como funciona</a><a href="#duvidas">Dúvidas</a>
+      <a class="landing-login" href="login.html">Entrar</a><a class="landing-cta landing-cta-small" href="login.html">Começar agora <span class="material-icons">arrow_forward</span></a>
+    </nav>
+    <button class="landing-menu-toggle" type="button" aria-label="Abrir navegação" aria-expanded="false"><span class="material-icons">menu</span></button>
+  </header>
 
-<script type="module">
-  import { auth } from "./js/firebase.js";
-  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
-
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      window.location.href = "login.html";
-    } else {
-      console.log("Usuário logado:", user);
-    }
-  });
-</script>
-
-<div class="user-menu" id="userMenu">
-  <button class="user-menu-trigger" id="userMenuTrigger" type="button" aria-expanded="false" aria-controls="userMenuPanel" aria-label="Abrir menu do usuário">
-    <span class="material-icons">account_circle</span>
-  </button>
-
-  <div class="user-menu-panel" id="userMenuPanel" hidden>
-    <div class="user-menu-heading">
-      <span class="material-icons">account_circle</span>
-      <div>
-        <strong id="userMenuName">Minha conta</strong>
-        <small id="userMenuEmail"></small>
+  <main>
+    <section class="landing-hero" id="inicio">
+      <div class="hero-copy">
+        <div class="hero-kicker"><span class="kicker-dot"></span> ORGANIZAÇÃO JURÍDICA, SEM COMPLICAÇÃO</div>
+        <h1>Mais clareza na rotina.<br><span>Mais tempo para advogar.</span></h1>
+        <p>Clientes, processos, compromissos e pesquisas reunidos em um só lugar para você cuidar do escritório com mais tranquilidade.</p>
+        <div class="hero-actions"><a class="landing-cta" href="login.html">Organizar minha rotina <span class="material-icons">arrow_forward</span></a><a class="hero-secondary" href="#solucoes">Conhecer a plataforma <span class="material-icons">south</span></a></div>
+        <div class="hero-note"><span class="material-icons">verified_user</span> Seus dados ficam associados à sua conta.</div>
       </div>
-    </div>
+      <div class="hero-visual" aria-label="Prévia do painel de organização Law's">
+        <div class="visual-orbit orbit-one"></div><div class="visual-orbit orbit-two"></div>
+        <div class="dashboard-preview">
+          <div class="preview-top"><div class="preview-brand"><span class="brand-mark"><span></span><span></span><span></span></span> Law’s <small>ESPAÇO DO ADVOGADO</small></div><span class="preview-avatar">A</span></div>
+          <div class="preview-greeting"><small>SEU ESPAÇO DE TRABALHO</small><h3>Bom ter você por aqui 👋</h3><span>Seu escritório, em perspectiva.</span></div>
+          <div class="preview-stats"><div><span class="stat-icon blue"><span class="material-icons">folder_open</span></span><small>Processos</small><strong>Organizados</strong></div><div><span class="stat-icon green"><span class="material-icons">groups</span></span><small>Clientes</small><strong>Centralizados</strong></div></div>
+          <div class="preview-agenda"><div class="preview-agenda-head"><strong>Próximos compromissos</strong><span>Ver agenda →</span></div><div class="preview-event"><span class="event-time">09:30</span><i></i><span><b>Reunião com cliente</b><small>Mariana Costa · Consultoria</small></span></div><div class="preview-event"><span class="event-time">14:00</span><i></i><span><b>Prazo processual</b><small>Processo nº 0001234-56</small></span></div></div>
+          <div class="preview-nav"><span class="active"><span class="material-icons">dashboard</span></span><span class="material-icons">groups</span><span class="material-icons">folder</span><span class="material-icons">calendar_month</span></div>
+        </div>
+        <div class="floating-note"><span class="floating-check material-icons">task_alt</span><span><b>Tudo no lugar</b><small>Uma rotina mais leve começa aqui</small></span></div>
+        <div class="hero-sparkle sparkle-one">✳</div><div class="hero-sparkle sparkle-two">✦</div>
+      </div>
+      <a class="hero-scroll" href="#solucoes"><span></span> role para conhecer</a>
+    </section>
 
-    <a class="user-menu-option" href="perfil-advogado.html">
-      <span class="material-icons">person</span>
-      <span>Perfil</span>
-    </a>
+    <section class="landing-shortcuts" aria-label="Acessos rápidos">
+      <div class="shortcut-intro"><span>UM ESCRITÓRIO MAIS ORGANIZADO</span><h2>Comece pelo que<br>precisa hoje.</h2></div>
+      <a class="shortcut-card" href="clientes.html"><span class="shortcut-icon icon-blue"><span class="material-icons">groups</span></span><span><b>Organizar clientes</b><small>Cadastros e informações em ordem</small></span><span class="material-icons shortcut-arrow">arrow_outward</span></a>
+      <a class="shortcut-card" href="processos.html"><span class="shortcut-icon icon-green"><span class="material-icons">folder_open</span></span><span><b>Acompanhar processos</b><small>Tenha seus casos sempre à mão</small></span><span class="material-icons shortcut-arrow">arrow_outward</span></a>
+      <a class="shortcut-card" href="agenda.html"><span class="shortcut-icon icon-lilac"><span class="material-icons">calendar_month</span></span><span><b>Planejar a agenda</b><small>Compromissos e prazos em um só lugar</small></span><span class="material-icons shortcut-arrow">arrow_outward</span></a>
+    </section>
 
-    <a class="user-menu-option" href="perfil-advogado.html#configuracoes">
-      <span class="material-icons">settings</span>
-      <span>Configurações</span>
-    </a>
+    <section class="solutions-section" id="solucoes">
+      <div class="section-heading"><div><span class="section-eyebrow">MENOS ABAS, MAIS CONTROLE</span><h2>O que seu escritório<br>precisa, mais perto.</h2></div><p>Uma plataforma feita para simplificar as tarefas que fazem parte de todo dia no Direito.</p></div>
+      <div class="solution-grid">
+        <article class="solution-card solution-featured"><div class="solution-top"><span class="solution-icon"><span class="material-icons">space_dashboard</span></span><span class="solution-number">01 / ROTINA</span></div><h3>Seu escritório em perspectiva</h3><p>Acesse clientes, processos e atividades recentes sem perder tempo procurando cada informação.</p><a href="login.html">Acessar meu espaço <span class="material-icons">arrow_forward</span></a><div class="mini-board"><div class="mini-board-head"><span>Visão geral</span><span class="mini-pill">● Em dia</span></div><div class="mini-bars"><i style="--h:40%"></i><i style="--h:67%"></i><i style="--h:52%"></i><i style="--h:83%"></i><i style="--h:62%"></i><i style="--h:95%"></i><i style="--h:72%"></i></div><div class="mini-board-foot"><span>SEG</span><span>TER</span><span>QUA</span><span>QUI</span><span>SEX</span><span>SÁB</span><span>DOM</span></div></div></article>
+        <article class="solution-card"><div class="solution-top"><span class="solution-icon green-icon"><span class="material-icons">event_note</span></span><span class="solution-number">02 / PRAZOS</span></div><h3>Uma agenda que acompanha você</h3><p>Visualize reuniões e compromissos para planejar a semana com mais segurança.</p><a href="agenda.html">Abrir agenda <span class="material-icons">arrow_forward</span></a><div class="solution-decoration calendar-decoration"><div class="calendar-head"><span>NOVEMBRO 2026</span><span>‹ &nbsp; ›</span></div><div class="calendar-days"><i>SEG</i><i>TER</i><i>QUA</i><i>QUI</i><i>SEX</i><i>SÁB</i><i>DOM</i></div><div class="calendar-dates"><span>9</span><span class="today">10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span></div></div></article>
+        <article class="solution-card"><div class="solution-top"><span class="solution-icon blue-icon"><span class="material-icons">folder_shared</span></span><span class="solution-number">03 / CLIENTES</span></div><h3>Informações de clientes organizadas</h3><p>Mantenha contatos e dados relevantes centralizados para encontrar o que precisa.</p><a href="clientes.html">Ver clientes <span class="material-icons">arrow_forward</span></a><div class="solution-decoration people-decoration"><div class="person-row"><span class="person-avatar avatar-a">MC</span><span><b>Mariana Costa</b><small>Consultoria empresarial</small></span><span class="person-status">Ativo</span></div><div class="person-row"><span class="person-avatar avatar-b">RF</span><span><b>Rafael Ferreira</b><small>Direito de família</small></span><span class="person-status">Ativo</span></div></div></article>
+        <article class="solution-card solution-dark"><div class="solution-top"><span class="solution-icon dark-icon"><span class="material-icons">manage_search</span></span><span class="solution-number">04 / PESQUISA</span></div><h3>Pesquise com contexto jurídico</h3><p>Consulte jurisprudências e encontre referências para apoiar seu trabalho.</p><a href="jurisprudencias.html">Pesquisar jurisprudências <span class="material-icons">arrow_forward</span></a><div class="law-lines"><span>Jurisprudência selecionada</span><b>STJ · Superior Tribunal de Justiça</b><i>“A boa-fé objetiva deve orientar as relações contratuais...”</i></div></article>
+      </div>
+    </section>
 
-    <div class="user-menu-divider"></div>
+    <section class="workflow-section" id="como-funciona"><div class="workflow-copy"><span class="section-eyebrow">FEITO PARA SUA PRÁTICA</span><h2>Organização que<br>deixa espaço para<br><span>o que importa.</span></h2><p>Comece pelo essencial: cadastre seus clientes, acompanhe os processos e mantenha os compromissos visíveis. Tudo conectado ao seu espaço de trabalho.</p><a class="landing-cta" href="login.html">Entrar no Law’s <span class="material-icons">arrow_forward</span></a></div><div class="workflow-steps"><div class="workflow-line"></div><article><span class="step-index">01</span><div><h3>Entre na sua conta</h3><p>Acesse com sua conta Google ou GitHub.</p></div><span class="material-icons step-icon">login</span></article><article><span class="step-index">02</span><div><h3>Escolha uma área</h3><p>Abra clientes, processos, agenda ou pesquisas.</p></div><span class="material-icons step-icon">widgets</span></article><article><span class="step-index">03</span><div><h3>Continue de onde parou</h3><p>Seus itens recentes ajudam você a retomar o trabalho.</p></div><span class="material-icons step-icon">task_alt</span></article></div></section>
 
-    <button class="user-menu-option logout-option" id="logoutBtn" type="button">
-      <span class="material-icons">logout</span>
-      <span>Sair</span>
-    </button>
-  </div>
-</div>
+    <section class="trust-section" id="privacidade"><div class="trust-mark"><span class="brand-mark"><span></span><span></span><span></span></span></div><div><span class="section-eyebrow">PRIVACIDADE COM TRANSPARÊNCIA</span><h2>Seus dados são seus.</h2><p>O Law’s usa sua conta para identificar seu espaço de trabalho e guardar as informações que você registra. Evite incluir dados pessoais que não sejam necessários ao uso do app.</p><a href="login.html">Acessar minha conta <span class="material-icons">arrow_outward</span></a></div><div class="trust-stamp"><span class="material-icons">shield</span><b>Seu espaço<br>de trabalho</b><small>IDENTIFICADO PELA SUA CONTA</small></div></section>
 
-<div class="menu">
+    <section class="faq-section" id="duvidas"><div class="faq-heading"><span class="section-eyebrow">PERGUNTAS FREQUENTES</span><h2>Ficou com<br>alguma dúvida?</h2><p>O essencial para você começar com clareza.</p><a href="login.html">Precisa de ajuda? Acesse sua conta <span class="material-icons">arrow_outward</span></a></div><div class="faq-list"><details><summary>O que é o Law’s?<span class="material-icons">add</span></summary><p>O Law’s é uma plataforma de organização para advogados, com áreas para clientes, processos, agenda e pesquisa de jurisprudências.</p></details><details><summary>Como começo a usar?<span class="material-icons">add</span></summary><p>Clique em “Começar agora” e entre usando sua conta Google ou GitHub. Depois, acesse a área que deseja organizar.</p></details><details><summary>O Law’s é gratuito?<span class="material-icons">add</span></summary><p>O acesso e as condições de uso dependem da configuração atual da plataforma. Entre na sua conta para conhecer os recursos disponíveis.</p></details><details><summary>Quem pode ver as informações que cadastro?<span class="material-icons">add</span></summary><p>As informações ficam vinculadas à sua conta. Evite cadastrar dados que não sejam necessários e consulte as informações de privacidade disponíveis nesta página.</p></details><details><summary>O Law’s substitui meu sistema processual ou advogado?<span class="material-icons">add</span></summary><p>Não. O Law’s ajuda a organizar sua rotina e consultar referências; não substitui sistemas oficiais dos tribunais nem a análise profissional de cada caso.</p></details></div></section>
 
-  <div class="menu-item" onclick="goTo('clientes.html')" aria-label="Abrir clientes">
-    <span class="material-icons">groups</span>
-    <span class="menu-label">Clientes</span>
-  </div>
+    <section class="final-cta"><div class="final-cta-pattern"></div><div><span class="section-eyebrow">SUA ROTINA PODE FLUIR MELHOR</span><h2>Deixe a organização<br>trabalhar a seu favor.</h2><p>Entre no Law’s e reúna o dia a dia do seu escritório em um só lugar.</p></div><a href="login.html" class="final-button">Organizar minha rotina <span class="material-icons">arrow_forward</span></a><span class="final-asterisk">✳</span></section>
+  </main>
 
-  <div class="menu-item" onclick="goTo('jurisprudencias.html')" aria-label="Abrir jurisprudências">
-    <span class="material-icons">gavel</span>
-    <span class="menu-label">Jurisprudências</span>
-  </div>
-
-  <div class="menu-item" onclick="goTo('agenda.html')" aria-label="Abrir calendário">
-    <span class="material-icons">calendar_month</span>
-    <span class="menu-label">Calendário</span>
-  </div>
-
-  <div class="menu-item" onclick="goTo('processos.html')" aria-label="Abrir processos">
-    <span class="material-icons">folder</span>
-    <span class="menu-label">Processos</span>
-  </div>
-
-</div>
-
-<div class="recentes-container">
-
-  <h2>Recentes</h2>
-
-  <div class="recentes-carousel">
-    <button type="button" id="recentesAnterior" class="carousel-btn" aria-label="Ver recentes anteriores">
-      <span class="material-icons">chevron_left</span>
-    </button>
-
-    <div id="recentes"></div>
-
-    <button type="button" id="recentesProximo" class="carousel-btn" aria-label="Ver mais recentes">
-      <span class="material-icons">chevron_right</span>
-    </button>
-  </div>
-
-</div>
-
-<script>
-  function goTo(page) {
-    window.location.href = page;
-  }
-</script>
-
-<script type="module" src="./js/recentes.js"></script>
-<script type="module" src="./js/theme.js"></script>
-<script type="module" src="./js/user-menu.js"></script>
-
+  <footer class="landing-footer"><div class="footer-main"><a class="landing-brand" href="#inicio"><span class="brand-mark"><span></span><span></span><span></span></span><span>Law<span class="brand-apostrophe">’</span>s</span></a><p>Mais clareza para a rotina jurídica.</p><div class="footer-links"><a href="#solucoes">Plataforma</a><a href="#como-funciona">Como funciona</a><a href="#duvidas">Perguntas frequentes</a><a href="login.html">Contato e ajuda</a><a href="#privacidade">Privacidade</a></div></div><div class="footer-bottom"><span>© 2026 Law’s. Feito para uma rotina jurídica mais organizada.</span><a href="login.html">Acessar minha conta <span class="material-icons">arrow_forward</span></a></div></footer>
+  <script src="./js/landing.js"></script>
 </body>
 </html>

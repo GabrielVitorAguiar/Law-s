@@ -34,7 +34,7 @@ loginBtn.addEventListener("click", async () => {
 
     sessionStorage.setItem("googleToken", token);
 
-    window.location.href = "index.html";
+    window.location.href = "painel.html";
 
   } catch (error) {
     if (error.code !== "auth/popup-closed-by-user") {
@@ -52,7 +52,7 @@ githubBtn.addEventListener("click", async () => {
     const result = await signInWithPopup(auth, githubProvider);
 
     if (result.user) {
-      window.location.href = "index.html";
+      window.location.href = "painel.html";
     }
 
   } catch (error) {
